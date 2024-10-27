@@ -10,7 +10,7 @@ module.exports = (sequelize) => {
     });
     category.associate = (db) => {
         db.category.belongsToMany(db.event, {
-            through: "event_categories",
+            through: db.event_categories,
             onDelete: "CASCADE",
             onUpdate: "CASCADE",
         });

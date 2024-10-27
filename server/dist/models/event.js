@@ -67,7 +67,7 @@ module.exports = (sequelize) => {
             onUpdate: "CASCADE",
         });
         db.event.belongsToMany(db.category, {
-            through: "event_categories",
+            through: db.event_categories,
             onDelete: "CASCADE",
             onUpdate: "CASCADE",
         });

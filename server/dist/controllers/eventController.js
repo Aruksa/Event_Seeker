@@ -15,14 +15,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.postEvent = void 0;
 const index_1 = __importDefault(require("../models/index"));
 const sequelize_1 = require("sequelize");
+const _ = require("lodash");
 const eventModel = index_1.default.event;
+const eventCategoryModel = index_1.default.event_categories;
 const postEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = req.user.id;
-        const { title, venue, city, country, description, mode, thumbnail, startDate, endDate, } = req.body;
+        const { title, venue, city, country, description, mode, thumbnail, startDate, endDate, categories, } = req.body;
         const formattedStartDate = new Date(startDate).toISOString();
         const formattedEndDate = new Date(endDate).toISOString();
-        // Find events where the request's startDate falls within the range of an existing event's start and end dates
         let events = yield eventModel.findAll({
             where: {
                 title: title,
@@ -63,7 +64,12 @@ const postEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             country: country,
             thumbnail: thumbnail,
         });
-        res.status(201).json(event);
+        const eventCategoryData = categories.map((categoryId) => ({
+            eventId: event.id,
+            categoryId: categoryId,
+        }));
+        yield eventCategoryModel.bulkCreate(eventCategoryData);
+        res.status(201).json(Object.assign(Object.assign({}, _.omit(event.dataValues, ["userId"])), { categories: categories }));
     }
     catch (error) {
         res.status(400).send(error);

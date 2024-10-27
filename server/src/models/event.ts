@@ -1,7 +1,8 @@
 import { Sequelize, DataTypes, Model, ModelStatic } from "sequelize";
 import { DB } from "./index";
 
-interface EventInstance extends Model {
+export interface EventInstance extends Model {
+  id: number;
   title: string;
   description: string;
   mode: string;
@@ -92,7 +93,7 @@ module.exports = (sequelize: Sequelize) => {
     (db.event as ModelStatic<EventInstance>).belongsToMany(
       db.category as ModelStatic<Model>,
       {
-        through: "event_categories",
+        through: db.event_categories as ModelStatic<Model>,
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       }

@@ -2,7 +2,11 @@ import { Model, ModelStatic } from "sequelize";
 import db from "../models/index";
 import { Request, Response } from "express";
 import { Op } from "sequelize";
-const eventModel = db.event as ModelStatic<Model>;
+import { EventInstance } from "../models/event";
+const _ = require("lodash");
+
+const eventModel = db.event as ModelStatic<EventInstance>;
+const eventCategoryModel = db.event_categories as ModelStatic<Model>;
 
 export const postEvent = async (req: Request, res: Response) => {
   try {
@@ -17,12 +21,12 @@ export const postEvent = async (req: Request, res: Response) => {
       thumbnail,
       startDate,
       endDate,
+      categories,
     } = req.body;
 
     const formattedStartDate = new Date(startDate).toISOString();
     const formattedEndDate = new Date(endDate).toISOString();
 
-    // Find events where the request's startDate falls within the range of an existing event's start and end dates
     let events = await eventModel.findAll({
       where: {
         title: title,
@@ -68,7 +72,17 @@ export const postEvent = async (req: Request, res: Response) => {
       thumbnail: thumbnail,
     });
 
-    res.status(201).json(event);
+    const eventCategoryData = categories.map((categoryId: number) => ({
+      eventId: event.id,
+      categoryId: categoryId,
+    }));
+
+    await eventCategoryModel.bulkCreate(eventCategoryData);
+
+    res.status(201).json({
+      ..._.omit(event.dataValues, ["userId"]),
+      categories: categories,
+    });
   } catch (error) {
     res.status(400).send(error);
   }
