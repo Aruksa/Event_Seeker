@@ -6,10 +6,16 @@ const app = express();
 const hostname = "127.0.0.1";
 const port = 3000;
 
+import users from "./routes/userRoute";
+import auth from "./routes/authRoute";
+
 app.use(cors());
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
+
+app.use("/api/users", users);
+app.use("/api/auth", auth);
 
 //self invoked function
 (async function bootstrap() {
