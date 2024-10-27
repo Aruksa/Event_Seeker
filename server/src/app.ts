@@ -8,6 +8,7 @@ const port = 3000;
 
 import users from "./routes/userRoute";
 import auth from "./routes/authRoute";
+import events from "./routes/eventRoute";
 
 app.use(cors());
 app.use(express.json());
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/users", users);
 app.use("/api/auth", auth);
+app.use("/api/events", events);
 
 //self invoked function
 (async function bootstrap() {
