@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postEvent = void 0;
+exports.getEvents = exports.postEvent = void 0;
 const index_1 = __importDefault(require("../models/index"));
 const sequelize_1 = require("sequelize");
 const _ = require("lodash");
@@ -76,3 +76,16 @@ const postEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.postEvent = postEvent;
+const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = req.user;
+        let events = yield eventModel.findAll();
+        if (!events)
+            return res.status(404).send("There are no events to show.");
+        res.status(200).json(events);
+    }
+    catch (error) {
+        res.status(400).send(error);
+    }
+});
+exports.getEvents = getEvents;

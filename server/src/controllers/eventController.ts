@@ -87,3 +87,14 @@ export const postEvent = async (req: Request, res: Response) => {
     res.status(400).send(error);
   }
 };
+
+export const getEvents = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    let events = await eventModel.findAll();
+    if (!events) return res.status(404).send("There are no events to show.");
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
