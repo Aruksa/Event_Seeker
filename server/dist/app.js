@@ -21,14 +21,12 @@ const port = 3000;
 const userRoute_1 = __importDefault(require("./routes/userRoute"));
 const authRoute_1 = __importDefault(require("./routes/authRoute"));
 const eventRoute_1 = __importDefault(require("./routes/eventRoute"));
-const attdsRoute_1 = __importDefault(require("./routes/attdsRoute"));
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use("/api/users", userRoute_1.default);
 app.use("/api/auth", authRoute_1.default);
 app.use("/api/events", eventRoute_1.default);
-app.use("/api/attnds", attdsRoute_1.default);
 //self invoked function
 (function bootstrap() {
     return __awaiter(this, void 0, void 0, function* () {

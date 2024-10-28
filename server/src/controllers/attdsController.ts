@@ -8,7 +8,7 @@ const attendanceModel = db.attendance as ModelStatic<Model>;
 export const postScore = async (req: Request, res: Response) => {
   try {
     const user = req.user;
-    const eventId = req.body.eventId;
+    const eventId = req.params.id;
 
     let attendance = await attendanceModel.create({
       userId: user.id,
@@ -25,7 +25,7 @@ export const postScore = async (req: Request, res: Response) => {
 export const getScore = async (req: Request, res: Response) => {
   try {
     const user = req.user;
-    const eventId = req.body.eventId;
+    const eventId = req.params.id;
 
     let score = await attendanceModel.findOne({
       where: { userId: user.id, eventId: eventId },

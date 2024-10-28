@@ -19,7 +19,7 @@ const attendanceModel = index_1.default.attendance;
 const postScore = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = req.user;
-        const eventId = req.body.eventId;
+        const eventId = req.params.id;
         let attendance = yield attendanceModel.create({
             userId: user.id,
             eventId: eventId,
@@ -35,7 +35,7 @@ exports.postScore = postScore;
 const getScore = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = req.user;
-        const eventId = req.body.eventId;
+        const eventId = req.params.id;
         let score = yield attendanceModel.findOne({
             where: { userId: user.id, eventId: eventId },
         });

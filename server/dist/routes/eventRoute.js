@@ -1,8 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const attdsController_1 = require("../controllers/attdsController");
 const eventController_1 = require("../controllers/eventController");
 const auth = require("../middlewares/auth");
 const express = require("express");
 const router = express.Router();
 router.post("/", auth, eventController_1.postEvent);
+router.post("/:id/attds", auth, attdsController_1.postScore);
+router.get("/:id/attds", auth, attdsController_1.getScore);
 exports.default = router;
