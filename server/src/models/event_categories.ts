@@ -17,6 +17,7 @@ module.exports = (sequelize: Sequelize) => {
     (db.event_categories as ModelStatic<EventCategoriesInstance>).belongsTo(
       db.category as ModelStatic<Model>,
       {
+        onDelete: "CASCADE",
         onUpdate: "CASCADE",
         foreignKey: { allowNull: false },
       }

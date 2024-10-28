@@ -108,10 +108,10 @@ export const getEvents = async (req: Request, res: Response) => {
       whereClause.title = { [Op.iLike]: `%${search}%` };
     }
     if (city) {
-      whereClause.city = { [Op.iLike]: city };
+      whereClause.city = { [Op.iLike]: `%${city}%` };
     }
     if (country) {
-      whereClause.country = { [Op.iLike]: country };
+      whereClause.country = { [Op.iLike]: `%${country}%` };
     }
     if (startDate && endDate) {
       whereClause.startDate = { [Op.between]: [startDate, endDate] };
@@ -162,4 +162,125 @@ export const getEvents = async (req: Request, res: Response) => {
 export const getEvent = async (req: Request, res: Response) => {
   try {
   } catch (error) {}
+};
+
+export const deleteEvent = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    const eventId = req.params.id;
+
+    let deleted = await eventModel.destroy({
+      where: { userId: user.id, id: eventId },
+    });
+
+    if (!deleted) {
+      return res
+        .status(401)
+        .send("Event not found or user not authorized to delete this event!");
+    }
+
+    res.status(200).send("Deleted!");
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
+
+export const updateEvent = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user.id;
+    const eventId = req.params.id;
+
+    const {
+      title,
+      venue,
+      city,
+      country,
+      description,
+      mode,
+      thumbnail,
+      startDate,
+      endDate,
+      categories,
+    } = req.body;
+
+    const formattedStartDate = new Date(startDate).toISOString();
+    const formattedEndDate = new Date(endDate).toISOString();
+
+    let events = await eventModel.findAll({
+      where: {
+        id: { [Op.ne]: eventId }, // Exclude the current event
+        title: title,
+        venue: venue,
+        city: city,
+        country: country,
+        [Op.or]: [
+          {
+            startDate: {
+              [Op.lte]: formattedStartDate,
+            },
+            endDate: {
+              [Op.gte]: formattedStartDate,
+            },
+          },
+          {
+            startDate: {
+              [Op.between]: [formattedStartDate, formattedEndDate],
+            },
+          },
+        ],
+      },
+    });
+
+    if (events.length !== 0) {
+      return res
+        .status(400)
+        .send(
+          "Event cannot have the same title, location, and date as another existing event!"
+        );
+    }
+
+    // Update the event
+    const [updatedRows] = await eventModel.update(
+      {
+        title: title,
+        description: description,
+        mode: mode,
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+        venue: venue,
+        city: city,
+        country: country,
+        thumbnail: thumbnail,
+      },
+      {
+        where: { id: eventId, userId: userId },
+      }
+    );
+
+    if (updatedRows === 0) {
+      return res
+        .status(404)
+        .send("Event not found or user not authorized to update this event.");
+    }
+
+    const updatedEvent = {
+      id: eventId,
+      userId: userId,
+      title: title,
+      description: description,
+      mode: mode,
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
+      venue: venue,
+      city: city,
+      country: country,
+      thumbnail: thumbnail,
+      categories: categories,
+    };
+
+    res.status(200).json(updatedEvent);
+  } catch (error) {
+    console.error(error);
+    res.status(400).send("An error occurred while updating the event.");
+  }
 };

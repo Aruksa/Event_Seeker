@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getEvent = exports.getEvents = exports.postEvent = void 0;
+exports.updateEvent = exports.deleteEvent = exports.getEvent = exports.getEvents = exports.postEvent = void 0;
 const index_1 = __importDefault(require("../models/index"));
 const sequelize_1 = require("sequelize");
 const _ = require("lodash");
@@ -93,10 +93,10 @@ const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             whereClause.title = { [sequelize_1.Op.iLike]: `%${search}%` };
         }
         if (city) {
-            whereClause.city = { [sequelize_1.Op.iLike]: city };
+            whereClause.city = { [sequelize_1.Op.iLike]: `%${city}%` };
         }
         if (country) {
-            whereClause.country = { [sequelize_1.Op.iLike]: country };
+            whereClause.country = { [sequelize_1.Op.iLike]: `%${country}%` };
         }
         if (startDate && endDate) {
             whereClause.startDate = { [sequelize_1.Op.between]: [startDate, endDate] };
@@ -151,3 +151,99 @@ const getEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     catch (error) { }
 });
 exports.getEvent = getEvent;
+const deleteEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = req.user;
+        const eventId = req.params.id;
+        let deleted = yield eventModel.destroy({
+            where: { userId: user.id, id: eventId },
+        });
+        if (!deleted) {
+            return res
+                .status(401)
+                .send("Event not found or user not authorized to delete this event!");
+        }
+        res.status(200).send("Deleted!");
+    }
+    catch (error) {
+        res.status(400).send(error);
+    }
+});
+exports.deleteEvent = deleteEvent;
+const updateEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userId = req.user.id;
+        const eventId = req.params.id;
+        const { title, venue, city, country, description, mode, thumbnail, startDate, endDate, categories, } = req.body;
+        const formattedStartDate = new Date(startDate).toISOString();
+        const formattedEndDate = new Date(endDate).toISOString();
+        let events = yield eventModel.findAll({
+            where: {
+                id: { [sequelize_1.Op.ne]: eventId }, // Exclude the current event
+                title: title,
+                venue: venue,
+                city: city,
+                country: country,
+                [sequelize_1.Op.or]: [
+                    {
+                        startDate: {
+                            [sequelize_1.Op.lte]: formattedStartDate,
+                        },
+                        endDate: {
+                            [sequelize_1.Op.gte]: formattedStartDate,
+                        },
+                    },
+                    {
+                        startDate: {
+                            [sequelize_1.Op.between]: [formattedStartDate, formattedEndDate],
+                        },
+                    },
+                ],
+            },
+        });
+        if (events.length !== 0) {
+            return res
+                .status(400)
+                .send("Event cannot have the same title, location, and date as another existing event!");
+        }
+        // Update the event
+        const [updatedRows] = yield eventModel.update({
+            title: title,
+            description: description,
+            mode: mode,
+            startDate: formattedStartDate,
+            endDate: formattedEndDate,
+            venue: venue,
+            city: city,
+            country: country,
+            thumbnail: thumbnail,
+        }, {
+            where: { id: eventId, userId: userId },
+        });
+        if (updatedRows === 0) {
+            return res
+                .status(404)
+                .send("Event not found or user not authorized to update this event.");
+        }
+        const updatedEvent = {
+            id: eventId,
+            userId: userId,
+            title: title,
+            description: description,
+            mode: mode,
+            startDate: formattedStartDate,
+            endDate: formattedEndDate,
+            venue: venue,
+            city: city,
+            country: country,
+            thumbnail: thumbnail,
+            categories: categories,
+        };
+        res.status(200).json(updatedEvent);
+    }
+    catch (error) {
+        console.error(error);
+        res.status(400).send("An error occurred while updating the event.");
+    }
+});
+exports.updateEvent = updateEvent;
