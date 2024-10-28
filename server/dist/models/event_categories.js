@@ -8,6 +8,7 @@ module.exports = (sequelize) => {
             foreignKey: { allowNull: false },
         });
         db.event_categories.belongsTo(db.event, {
+            onDelete: "CASCADE",
             onUpdate: "CASCADE",
             foreignKey: { allowNull: false },
         });

@@ -11,10 +11,12 @@ module.exports = (sequelize) => {
     attendance.associate = (db) => {
         db.attendance.belongsTo(db.user, {
             onUpdate: "CASCADE",
+            onDelete: "CASCADE",
             foreignKey: { allowNull: false },
         });
         db.attendance.belongsTo(db.event, {
             onUpdate: "CASCADE",
+            onDelete: "CASCADE",
             foreignKey: { allowNull: false },
         });
     };

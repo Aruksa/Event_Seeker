@@ -21,6 +21,7 @@ module.exports = (sequelize: Sequelize) => {
       db.user as ModelStatic<Model>,
       {
         onUpdate: "CASCADE",
+        onDelete: "CASCADE",
         foreignKey: { allowNull: false },
       }
     );
@@ -29,6 +30,7 @@ module.exports = (sequelize: Sequelize) => {
       db.event as ModelStatic<Model>,
       {
         onUpdate: "CASCADE",
+        onDelete: "CASCADE",
         foreignKey: { allowNull: false },
       }
     );

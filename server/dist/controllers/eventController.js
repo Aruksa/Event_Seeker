@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getEvents = exports.postEvent = void 0;
+exports.getEvent = exports.getEvents = exports.postEvent = void 0;
 const index_1 = __importDefault(require("../models/index"));
 const sequelize_1 = require("sequelize");
 const _ = require("lodash");
@@ -80,7 +80,7 @@ const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Pagination parameters
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10; // Default to 10 items per page
+        const limit = parseInt(req.query.limit) || 5; // Default to 5 items per page
         const offset = (page - 1) * limit;
         // Search and filter parameters
         const search = req.query.search;
@@ -107,42 +107,37 @@ const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         else if (endDate) {
             whereClause.startDate = { [sequelize_1.Op.lte]: endDate }; // Filter events up to end date
         }
-        // Fetch paginated events with filters applied and calculate average attendance score
-        // const { rows: events, count } = await eventModel.findAndCountAll({
-        //   where: whereClause,
-        //   limit,
-        //   offset,
-        //   order: [["startDate", "ASC"]],
-        //   include: [
-        //     {
-        //       model: db.attendance as ModelStatic<Model>,
-        //       // right: true,
-        //       // required: true,
-        //       attributes: [
-        //         [fn("AVG", col("attendance_type")), "averageAttendance"],
-        //       ],
-        //     },
-        //   ],
-        //   group: ["event.id"],
-        // });
+        //Fetch paginated events with filters applied and avg_attendance
         const events = yield eventModel.findAll({
             attributes: [
+                "id",
                 "title",
+                "venue",
+                "city",
+                "country",
+                "description",
+                "mode",
+                "thumbnail",
+                "startDate",
+                "endDate",
                 [(0, sequelize_1.fn)("AVG", (0, sequelize_1.col)("attendances.attendance_type")), "avg_attendance"],
             ],
+            where: whereClause,
             include: [
                 {
                     model: index_1.default.attendance,
-                    attributes: [], // Exclude rating columns in the final result
+                    attributes: [],
                 },
             ],
-            group: ["event.id"], // Group by the event primary key
+            group: ["event.id"],
+            order: [["startDate", "ASC"]],
+            limit,
+            subQuery: false,
+            offset,
         });
         res.status(200).json({
-            events,
+            events: events,
             currentPage: page,
-            // totalPages: Math.ceil((events.length as number) / limit),
-            // totalEvents: count,
         });
     }
     catch (error) {
@@ -150,3 +145,9 @@ const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getEvents = getEvents;
+const getEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+    }
+    catch (error) { }
+});
+exports.getEvent = getEvent;

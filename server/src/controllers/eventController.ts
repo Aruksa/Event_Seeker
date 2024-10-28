@@ -92,7 +92,7 @@ export const getEvents = async (req: Request, res: Response) => {
   try {
     // Pagination parameters
     const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10; // Default to 10 items per page
+    const limit = parseInt(req.query.limit as string) || 5; // Default to 5 items per page
     const offset = (page - 1) * limit;
 
     // Search and filter parameters
@@ -121,46 +121,45 @@ export const getEvents = async (req: Request, res: Response) => {
       whereClause.startDate = { [Op.lte]: endDate }; // Filter events up to end date
     }
 
-    // Fetch paginated events with filters applied and calculate average attendance score
-    // const { rows: events, count } = await eventModel.findAndCountAll({
-    //   where: whereClause,
-    //   limit,
-    //   offset,
-    //   order: [["startDate", "ASC"]],
-    //   include: [
-    //     {
-    //       model: db.attendance as ModelStatic<Model>,
-    //       // right: true,
-    //       // required: true,
-    //       attributes: [
-    //         [fn("AVG", col("attendance_type")), "averageAttendance"],
-    //       ],
-    //     },
-    //   ],
-    //   group: ["event.id"],
-    // });
-
+    //Fetch paginated events with filters applied and avg_attendance
     const events = await eventModel.findAll({
       attributes: [
+        "id",
         "title",
+        "venue",
+        "city",
+        "country",
+        "description",
+        "mode",
+        "thumbnail",
+        "startDate",
+        "endDate",
         [fn("AVG", col("attendances.attendance_type")), "avg_attendance"],
       ],
+      where: whereClause,
       include: [
         {
           model: db.attendance as ModelStatic<Model>,
-          attributes: [], // Exclude rating columns in the final result
+          attributes: [],
         },
       ],
-      group: ["event.id"], // Group by the event primary key
+      group: ["event.id"],
+      order: [["startDate", "ASC"]],
+      limit,
+      subQuery: false,
+      offset,
     });
 
     res.status(200).json({
-      events,
+      events: events,
       currentPage: page,
-      // totalPages: Math.ceil((events.length as number) / limit),
-      // totalEvents: count,
     });
   } catch (error) {
     res.status(400).send(error);
   }
+};
+
+export const getEvent = async (req: Request, res: Response) => {
+  try {
+  } catch (error) {}
 };
