@@ -28,11 +28,7 @@ module.exports = (sequelize) => {
     });
     user.associate = (db) => {
         db.user.hasMany(db.event);
-        db.user.belongsToMany(db.event, {
-            through: db.attendance,
-            onDelete: "CASCADE",
-            onUpdate: "CASCADE",
-        });
+        db.user.hasMany(db.attendance);
     };
     return user;
 };

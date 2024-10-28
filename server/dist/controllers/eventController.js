@@ -78,11 +78,72 @@ const postEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.postEvent = postEvent;
 const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = req.user;
-        let events = yield eventModel.findAll();
-        if (!events)
-            return res.status(404).send("There are no events to show.");
-        res.status(200).json(events);
+        // Pagination parameters
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10; // Default to 10 items per page
+        const offset = (page - 1) * limit;
+        // Search and filter parameters
+        const search = req.query.search;
+        const city = req.query.city;
+        const country = req.query.country;
+        const startDate = req.query.startDate;
+        const endDate = req.query.endDate;
+        const whereClause = {};
+        if (search) {
+            whereClause.title = { [sequelize_1.Op.iLike]: `%${search}%` };
+        }
+        if (city) {
+            whereClause.city = { [sequelize_1.Op.iLike]: city };
+        }
+        if (country) {
+            whereClause.country = { [sequelize_1.Op.iLike]: country };
+        }
+        if (startDate && endDate) {
+            whereClause.startDate = { [sequelize_1.Op.between]: [startDate, endDate] };
+        }
+        else if (startDate) {
+            whereClause.startDate = { [sequelize_1.Op.gte]: startDate }; // Filter events from start date onwards
+        }
+        else if (endDate) {
+            whereClause.startDate = { [sequelize_1.Op.lte]: endDate }; // Filter events up to end date
+        }
+        // Fetch paginated events with filters applied and calculate average attendance score
+        // const { rows: events, count } = await eventModel.findAndCountAll({
+        //   where: whereClause,
+        //   limit,
+        //   offset,
+        //   order: [["startDate", "ASC"]],
+        //   include: [
+        //     {
+        //       model: db.attendance as ModelStatic<Model>,
+        //       // right: true,
+        //       // required: true,
+        //       attributes: [
+        //         [fn("AVG", col("attendance_type")), "averageAttendance"],
+        //       ],
+        //     },
+        //   ],
+        //   group: ["event.id"],
+        // });
+        const events = yield eventModel.findAll({
+            attributes: [
+                "title",
+                [(0, sequelize_1.fn)("AVG", (0, sequelize_1.col)("attendances.attendance_type")), "avg_attendance"],
+            ],
+            include: [
+                {
+                    model: index_1.default.attendance,
+                    attributes: [], // Exclude rating columns in the final result
+                },
+            ],
+            group: ["event.id"], // Group by the event primary key
+        });
+        res.status(200).json({
+            events,
+            currentPage: page,
+            // totalPages: Math.ceil((events.length as number) / limit),
+            // totalEvents: count,
+        });
     }
     catch (error) {
         res.status(400).send(error);

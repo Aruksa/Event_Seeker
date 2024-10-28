@@ -9,11 +9,7 @@ module.exports = (sequelize) => {
         },
     });
     category.associate = (db) => {
-        db.category.belongsToMany(db.event, {
-            through: db.event_categories,
-            onDelete: "CASCADE",
-            onUpdate: "CASCADE",
-        });
+        db.category.hasMany(db.event_categories);
     };
     return category;
 };

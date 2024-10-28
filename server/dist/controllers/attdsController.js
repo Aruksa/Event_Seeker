@@ -23,7 +23,7 @@ const postScore = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         let attendance = yield attendanceModel.create({
             userId: user.id,
             eventId: eventId,
-            attendanceType: req.body.attendanceType,
+            attendance_type: req.body.attendance_type,
         });
         res.status(201).json(attendance);
     }

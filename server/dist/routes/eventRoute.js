@@ -6,6 +6,7 @@ const auth = require("../middlewares/auth");
 const express = require("express");
 const router = express.Router();
 router.post("/", auth, eventController_1.postEvent);
+router.get("/", auth, eventController_1.getEvents);
 router.post("/:id/attds", auth, attdsController_1.postScore);
 router.get("/:id/attds", auth, attdsController_1.getScore);
 exports.default = router;

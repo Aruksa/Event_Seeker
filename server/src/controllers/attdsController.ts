@@ -13,7 +13,7 @@ export const postScore = async (req: Request, res: Response) => {
     let attendance = await attendanceModel.create({
       userId: user.id,
       eventId: eventId,
-      attendanceType: req.body.attendanceType,
+      attendance_type: req.body.attendance_type,
     });
 
     res.status(201).json(attendance);

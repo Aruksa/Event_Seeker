@@ -2,6 +2,7 @@ import { Sequelize, DataTypes, Model, ModelStatic } from "sequelize";
 import { DB } from "./index";
 
 interface UserInstance extends Model {
+  id: number;
   name: string;
   email: string;
   password: string;
@@ -40,13 +41,8 @@ module.exports = (sequelize: Sequelize) => {
       db.event as ModelStatic<Model>
     );
 
-    (db.user as ModelStatic<UserInstance>).belongsToMany(
-      db.event as ModelStatic<Model>,
-      {
-        through: db.attendance as ModelStatic<Model>,
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE",
-      }
+    (db.user as ModelStatic<UserInstance>).hasMany(
+      db.attendance as ModelStatic<Model>
     );
   };
 

@@ -17,13 +17,8 @@ module.exports = (sequelize: Sequelize) => {
   };
 
   category.associate = (db) => {
-    (db.category as ModelStatic<CategoryInstance>).belongsToMany(
-      db.event as ModelStatic<Model>,
-      {
-        through: db.event_categories as ModelStatic<Model>,
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE",
-      }
+    (db.category as ModelStatic<CategoryInstance>).hasMany(
+      db.event_categories as ModelStatic<Model>
     );
   };
 

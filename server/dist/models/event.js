@@ -61,16 +61,8 @@ module.exports = (sequelize) => {
             onUpdate: "CASCADE",
             foreignKey: { allowNull: false },
         });
-        db.event.belongsToMany(db.user, {
-            through: db.attendance,
-            onDelete: "CASCADE",
-            onUpdate: "CASCADE",
-        });
-        db.event.belongsToMany(db.category, {
-            through: db.event_categories,
-            onDelete: "CASCADE",
-            onUpdate: "CASCADE",
-        });
+        db.event.hasMany(db.attendance);
+        db.event.hasMany(db.event_categories);
     };
     return event;
 };

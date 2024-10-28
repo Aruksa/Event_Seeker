@@ -81,22 +81,12 @@ module.exports = (sequelize: Sequelize) => {
       }
     );
 
-    (db.event as ModelStatic<EventInstance>).belongsToMany(
-      db.user as ModelStatic<Model>,
-      {
-        through: db.attendance as ModelStatic<Model>,
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE",
-      }
+    (db.event as ModelStatic<EventInstance>).hasMany(
+      db.attendance as ModelStatic<Model>
     );
 
-    (db.event as ModelStatic<EventInstance>).belongsToMany(
-      db.category as ModelStatic<Model>,
-      {
-        through: db.event_categories as ModelStatic<Model>,
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE",
-      }
+    (db.event as ModelStatic<EventInstance>).hasMany(
+      db.event_categories as ModelStatic<Model>
     );
   };
 
