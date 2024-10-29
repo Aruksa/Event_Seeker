@@ -68,8 +68,8 @@ const Login = () => {
   return (
     <Flex alignItems="center" justifyContent="center">
       <form onSubmit={handleLogin}>
-        <Heading padding="20px" fontSize="4xl">
-          Login
+        <Heading padding="20px" fontSize="4xl" textAlign="center">
+          Log in
         </Heading>
         <Stack padding="10px" spacing={7} boxSize={450}>
           {isError && (
@@ -93,13 +93,13 @@ const Login = () => {
             variant="outline"
             placeholder="Password"
           />
-          <Button type="submit" colorScheme="blue">
-            Login
+          <Button type="submit" colorScheme="red">
+            Log in
           </Button>
           <HStack justify="center">
             <Text>Not a user?</Text>
             <Link to="/register">
-              <Button variant="link" colorScheme="blue">
+              <Button variant="link" color="#00616E">
                 Sign up
               </Button>
             </Link>

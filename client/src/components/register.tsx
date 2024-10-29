@@ -71,8 +71,8 @@ const SignUp = () => {
   return (
     <Flex alignItems="center" justifyContent="center">
       <form onSubmit={handleSignup}>
-        <Heading padding="20px" fontSize="4xl">
-          Create a user
+        <Heading padding="20px" fontSize="4xl" textAlign="center">
+          Sign up
         </Heading>
         <Stack padding="10px" spacing={7} boxSize={450}>
           {isError && (
@@ -103,14 +103,14 @@ const SignUp = () => {
             variant="outline"
             placeholder="Password"
           />
-          <Button type="submit" colorScheme="blue">
-            Sign Up
+          <Button type="submit" colorScheme="red">
+            Sign up
           </Button>
           <HStack justify="center">
             <Text>Already a user?</Text>
             <Link to="/login">
-              <Button variant="link" colorScheme="blue">
-                Login
+              <Button variant="link" color="#00616E">
+                Log in
               </Button>
             </Link>
           </HStack>
