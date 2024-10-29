@@ -12,16 +12,21 @@ const NavBar = () => {
 
   const { user, setUser } = useUserContext();
   return (
-    <HStack justifyContent="space-between" padding="20px">
+    <HStack justifyContent="flex-start" padding="20px">
       <Link to="/">
         <Button>Home</Button>
       </Link>
       {user ? (
         <Button onClick={handleLogout}>Logout</Button>
       ) : (
-        <Link to="/login">
-          <Button colorScheme="orange">Login</Button>
-        </Link>
+        <>
+          <Link to="/login">
+            <Button colorScheme="orange">Login</Button>
+          </Link>
+          <Link to="/register">
+            <Button colorScheme="orange">Register</Button>
+          </Link>
+        </>
       )}
     </HStack>
   );

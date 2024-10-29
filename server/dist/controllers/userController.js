@@ -29,9 +29,7 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         temp.password = yield bcrypt.hash(temp.password, salt);
         user = yield userModel.create(temp);
         const token = jwt.sign({ id: user.get("id") }, "jwtPrivateKey");
-        res
-            .header("x-auth-token", token)
-            .send(_.pick(user, ["id", "name", "email"]));
+        res.status(201).send(token);
     }
     catch (error) {
         res.status(400).send(error);

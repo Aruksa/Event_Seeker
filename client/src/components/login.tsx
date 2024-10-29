@@ -22,9 +22,10 @@ const Login = () => {
     password: "",
   });
   const cookies = new Cookies();
+  const { setUser } = useUserContext();
+
   const [error, setError] = useState("");
   const [isError, setIsError] = useState(false);
-  const { setUser } = useUserContext();
 
   const isEmailValid = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -97,7 +98,7 @@ const Login = () => {
           </Button>
           <HStack justify="center">
             <Text>Not a user?</Text>
-            <Link to="/signup">
+            <Link to="/register">
               <Button variant="link" colorScheme="blue">
                 Sign up
               </Button>

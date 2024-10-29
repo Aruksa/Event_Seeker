@@ -21,9 +21,7 @@ export const createUser = async (req: Request, res: Response) => {
 
     const token = jwt.sign({ id: user.get("id") }, "jwtPrivateKey");
 
-    res
-      .header("x-auth-token", token)
-      .send(_.pick(user, ["id", "name", "email"]));
+    res.status(201).send(token);
   } catch (error) {
     res.status(400).send(error);
   }

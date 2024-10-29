@@ -13,6 +13,7 @@ import theme from "./theme";
 import "./index.css";
 import Login from "./components/login";
 import SignUp from "./components/register";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 const router = createBrowserRouter([
   {
@@ -21,11 +22,19 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/login",
-        element: <Login />,
+        element: (
+          <ProtectedRoute>
+            <Login />
+          </ProtectedRoute>
+        ),
       },
       {
-        path: "/signup",
-        element: <SignUp />,
+        path: "/register",
+        element: (
+          <ProtectedRoute>
+            <SignUp />
+          </ProtectedRoute>
+        ),
       },
     ],
     errorElement: (

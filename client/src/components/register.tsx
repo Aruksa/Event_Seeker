@@ -13,6 +13,8 @@ import {
 import { FormEvent, useState } from "react";
 import { createUser } from "../services/createUser";
 import { Link } from "react-router-dom";
+import Cookies from "universal-cookie";
+import { useUserContext } from "../contexts/userContext";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -20,6 +22,9 @@ const SignUp = () => {
     email: "",
     password: "",
   });
+  const cookies = new Cookies();
+  const { setUser } = useUserContext();
+
   const [error, setError] = useState("");
   const [isError, setIsError] = useState(false);
 
@@ -35,9 +40,14 @@ const SignUp = () => {
   const handleSignup = async (e: FormEvent) => {
     e.preventDefault();
 
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + 30);
+
     if (isFormValid) {
       try {
         const data = await createUser(formData);
+        setUser(data);
+        cookies.set("token", data, { expires: expirationDate });
         console.log("Signup successful:", data);
         setFormData({ name: "", email: "", password: "" });
       } catch (err: any) {
