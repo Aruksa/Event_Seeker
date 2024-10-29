@@ -1,8 +1,9 @@
 import { Sequelize, DataTypes, Model, ModelStatic } from "sequelize";
-import { DB } from "./index";
+import { DB, ModelWithAssociations } from "./index";
 
-interface EventCategoriesInstance extends Model {
+export interface EventCategoriesInstance extends ModelWithAssociations {
   id: number;
+  categoryId: number;
 }
 
 module.exports = (sequelize: Sequelize) => {

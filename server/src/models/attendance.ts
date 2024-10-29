@@ -1,7 +1,7 @@
 import { Sequelize, DataTypes, Model, ModelStatic } from "sequelize";
 import { DB } from "./index";
 
-interface AttendanceInstance extends Model {
+export interface AttendanceInstance extends Model {
   id: number;
   attendance_type: number;
 }

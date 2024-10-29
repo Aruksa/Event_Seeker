@@ -3,10 +3,14 @@ import db from "../models/index";
 import { Request, Response } from "express";
 import { Op, fn, col } from "sequelize";
 import { EventInstance } from "../models/event";
+import { EventCategoriesInstance } from "../models/event_categories";
+import { AttendanceInstance } from "../models/attendance";
 
 const _ = require("lodash");
 const eventModel = db.event as ModelStatic<EventInstance>;
-const eventCategoryModel = db.event_categories as ModelStatic<Model>;
+const eventCategoryModel =
+  db.event_categories as ModelStatic<EventCategoriesInstance>;
+const attendanceModel = db.attendance as ModelStatic<AttendanceInstance>;
 
 export const postEvent = async (req: Request, res: Response) => {
   try {
@@ -27,7 +31,7 @@ export const postEvent = async (req: Request, res: Response) => {
     const formattedStartDate = new Date(startDate).toISOString();
     const formattedEndDate = new Date(endDate).toISOString();
 
-    let events = await eventModel.findAll({
+    let events = await eventModel.findOne({
       where: {
         title: title,
         venue: venue,
@@ -51,7 +55,7 @@ export const postEvent = async (req: Request, res: Response) => {
       },
     });
 
-    if (events.length !== 0) {
+    if (events) {
       return res
         .status(400)
         .send(
@@ -161,16 +165,62 @@ export const getEvents = async (req: Request, res: Response) => {
 
 export const getEvent = async (req: Request, res: Response) => {
   try {
-  } catch (error) {}
+    const eventId = req.params.id;
+
+    const event = await eventModel.findByPk(eventId);
+
+    const categories = await eventCategoryModel.findAll({
+      where: { eventId: eventId },
+    });
+
+    const not_interested = await attendanceModel.count({
+      where: {
+        eventId: eventId,
+        attendance_type: 0,
+      },
+    });
+
+    const interested = await attendanceModel.count({
+      where: {
+        eventId: eventId,
+        attendance_type: 3,
+      },
+    });
+
+    const going = await attendanceModel.count({
+      where: {
+        eventId: eventId,
+        attendance_type: 5,
+      },
+    });
+
+    if (!event) {
+      return res.status(404).send("Event not found!");
+    }
+
+    if (!categories) {
+      return res.status(404).send("Event category not found!");
+    }
+
+    res.status(200).json({
+      event: event,
+      categories: categories.map((category) => category.categoryId),
+      not_interested: not_interested,
+      interested: interested,
+      going: going,
+    });
+  } catch (error) {
+    res.status(400).send(error);
+  }
 };
 
 export const deleteEvent = async (req: Request, res: Response) => {
   try {
-    const user = req.user;
+    const userId = req.user.id;
     const eventId = req.params.id;
 
     let deleted = await eventModel.destroy({
-      where: { userId: user.id, id: eventId },
+      where: { userId: userId, id: eventId },
     });
 
     if (!deleted) {
@@ -190,29 +240,26 @@ export const updateEvent = async (req: Request, res: Response) => {
     const userId = req.user.id;
     const eventId = req.params.id;
 
-    const {
-      title,
-      venue,
-      city,
-      country,
-      description,
-      mode,
-      thumbnail,
-      startDate,
-      endDate,
-      categories,
-    } = req.body;
+    let event = await eventModel.findOne({
+      where: { userId: userId, id: eventId },
+    });
 
-    const formattedStartDate = new Date(startDate).toISOString();
-    const formattedEndDate = new Date(endDate).toISOString();
+    if (!event) {
+      return res
+        .status(404)
+        .send("Event not found or user not authorized to update this event.");
+    }
 
-    let events = await eventModel.findAll({
+    const formattedStartDate = new Date(req.body.startDate).toISOString();
+    const formattedEndDate = new Date(req.body.endDate).toISOString();
+
+    let events = await eventModel.findOne({
       where: {
         id: { [Op.ne]: eventId }, // Exclude the current event
-        title: title,
-        venue: venue,
-        city: city,
-        country: country,
+        title: req.body.title,
+        venue: req.body.venue,
+        city: req.body.city,
+        country: req.body.country,
         [Op.or]: [
           {
             startDate: {
@@ -231,7 +278,7 @@ export const updateEvent = async (req: Request, res: Response) => {
       },
     });
 
-    if (events.length !== 0) {
+    if (events) {
       return res
         .status(400)
         .send(
@@ -240,45 +287,22 @@ export const updateEvent = async (req: Request, res: Response) => {
     }
 
     // Update the event
-    const [updatedRows] = await eventModel.update(
-      {
-        title: title,
-        description: description,
-        mode: mode,
-        startDate: formattedStartDate,
-        endDate: formattedEndDate,
-        venue: venue,
-        city: city,
-        country: country,
-        thumbnail: thumbnail,
-      },
-      {
-        where: { id: eventId, userId: userId },
-      }
-    );
-
-    if (updatedRows === 0) {
-      return res
-        .status(404)
-        .send("Event not found or user not authorized to update this event.");
-    }
-
-    const updatedEvent = {
-      id: eventId,
-      userId: userId,
-      title: title,
-      description: description,
-      mode: mode,
+    const updatedEvent = await event.update({
+      title: req.body.title,
+      description: req.body.description,
+      mode: req.body.mode,
       startDate: formattedStartDate,
       endDate: formattedEndDate,
-      venue: venue,
-      city: city,
-      country: country,
-      thumbnail: thumbnail,
-      categories: categories,
-    };
+      venue: req.body.venue,
+      city: req.body.city,
+      country: req.body.country,
+      thumbnail: req.body.thumbnail,
+    });
 
-    res.status(200).json(updatedEvent);
+    res.status(200).json({
+      updatedEvent: updatedEvent.dataValues,
+      categories: req.body.categories,
+    });
   } catch (error) {
     console.error(error);
     res.status(400).send("An error occurred while updating the event.");

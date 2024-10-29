@@ -18,13 +18,14 @@ const sequelize_1 = require("sequelize");
 const _ = require("lodash");
 const eventModel = index_1.default.event;
 const eventCategoryModel = index_1.default.event_categories;
+const attendanceModel = index_1.default.attendance;
 const postEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = req.user.id;
         const { title, venue, city, country, description, mode, thumbnail, startDate, endDate, categories, } = req.body;
         const formattedStartDate = new Date(startDate).toISOString();
         const formattedEndDate = new Date(endDate).toISOString();
-        let events = yield eventModel.findAll({
+        let events = yield eventModel.findOne({
             where: {
                 title: title,
                 venue: venue,
@@ -47,7 +48,7 @@ const postEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 ],
             },
         });
-        if (events.length !== 0) {
+        if (events) {
             return res
                 .status(400)
                 .send("Event cannot have the same title, location and date as another existing event!");
@@ -147,16 +148,54 @@ const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.getEvents = getEvents;
 const getEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const eventId = req.params.id;
+        const event = yield eventModel.findByPk(eventId);
+        const categories = yield eventCategoryModel.findAll({
+            where: { eventId: eventId },
+        });
+        const not_interested = yield attendanceModel.count({
+            where: {
+                eventId: eventId,
+                attendance_type: 0,
+            },
+        });
+        const interested = yield attendanceModel.count({
+            where: {
+                eventId: eventId,
+                attendance_type: 3,
+            },
+        });
+        const going = yield attendanceModel.count({
+            where: {
+                eventId: eventId,
+                attendance_type: 5,
+            },
+        });
+        if (!event) {
+            return res.status(404).send("Event not found!");
+        }
+        if (!categories) {
+            return res.status(404).send("Event category not found!");
+        }
+        res.status(200).json({
+            event: event,
+            categories: categories.map((category) => category.categoryId),
+            not_interested: not_interested,
+            interested: interested,
+            going: going,
+        });
     }
-    catch (error) { }
+    catch (error) {
+        res.status(400).send(error);
+    }
 });
 exports.getEvent = getEvent;
 const deleteEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = req.user;
+        const userId = req.user.id;
         const eventId = req.params.id;
         let deleted = yield eventModel.destroy({
-            where: { userId: user.id, id: eventId },
+            where: { userId: userId, id: eventId },
         });
         if (!deleted) {
             return res
@@ -174,16 +213,23 @@ const updateEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         const userId = req.user.id;
         const eventId = req.params.id;
-        const { title, venue, city, country, description, mode, thumbnail, startDate, endDate, categories, } = req.body;
-        const formattedStartDate = new Date(startDate).toISOString();
-        const formattedEndDate = new Date(endDate).toISOString();
-        let events = yield eventModel.findAll({
+        let event = yield eventModel.findOne({
+            where: { userId: userId, id: eventId },
+        });
+        if (!event) {
+            return res
+                .status(404)
+                .send("Event not found or user not authorized to update this event.");
+        }
+        const formattedStartDate = new Date(req.body.startDate).toISOString();
+        const formattedEndDate = new Date(req.body.endDate).toISOString();
+        let events = yield eventModel.findOne({
             where: {
                 id: { [sequelize_1.Op.ne]: eventId }, // Exclude the current event
-                title: title,
-                venue: venue,
-                city: city,
-                country: country,
+                title: req.body.title,
+                venue: req.body.venue,
+                city: req.body.city,
+                country: req.body.country,
                 [sequelize_1.Op.or]: [
                     {
                         startDate: {
@@ -201,45 +247,27 @@ const updateEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 ],
             },
         });
-        if (events.length !== 0) {
+        if (events) {
             return res
                 .status(400)
                 .send("Event cannot have the same title, location, and date as another existing event!");
         }
         // Update the event
-        const [updatedRows] = yield eventModel.update({
-            title: title,
-            description: description,
-            mode: mode,
+        const updatedEvent = yield event.update({
+            title: req.body.title,
+            description: req.body.description,
+            mode: req.body.mode,
             startDate: formattedStartDate,
             endDate: formattedEndDate,
-            venue: venue,
-            city: city,
-            country: country,
-            thumbnail: thumbnail,
-        }, {
-            where: { id: eventId, userId: userId },
+            venue: req.body.venue,
+            city: req.body.city,
+            country: req.body.country,
+            thumbnail: req.body.thumbnail,
         });
-        if (updatedRows === 0) {
-            return res
-                .status(404)
-                .send("Event not found or user not authorized to update this event.");
-        }
-        const updatedEvent = {
-            id: eventId,
-            userId: userId,
-            title: title,
-            description: description,
-            mode: mode,
-            startDate: formattedStartDate,
-            endDate: formattedEndDate,
-            venue: venue,
-            city: city,
-            country: country,
-            thumbnail: thumbnail,
-            categories: categories,
-        };
-        res.status(200).json(updatedEvent);
+        res.status(200).json({
+            updatedEvent: updatedEvent.dataValues,
+            categories: req.body.categories,
+        });
     }
     catch (error) {
         console.error(error);
