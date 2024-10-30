@@ -11,6 +11,7 @@ const eventModel = db.event as ModelStatic<EventInstance>;
 const eventCategoryModel =
   db.event_categories as ModelStatic<EventCategoriesInstance>;
 const attendanceModel = db.attendance as ModelStatic<AttendanceInstance>;
+const categoryModel = db.category as ModelStatic<Model>;
 
 export const postEvent = async (req: Request, res: Response) => {
   try {
@@ -303,5 +304,14 @@ export const updateEvent = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     res.status(400).send("An error occurred while updating the event.");
+  }
+};
+
+export const getCategories = async (req: Request, res: Response) => {
+  try {
+    const categories = await categoryModel.findAll();
+    res.status(200).json(categories);
+  } catch (error) {
+    res.status(404).send(error);
   }
 };

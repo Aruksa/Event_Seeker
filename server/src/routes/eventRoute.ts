@@ -1,6 +1,7 @@
 import { getScore, postScore } from "../controllers/attdsController";
 import {
   deleteEvent,
+  getCategories,
   getEvent,
   getEvents,
   postEvent,
@@ -12,6 +13,8 @@ const router = express.Router();
 
 router.post("/", auth, postEvent);
 router.get("/", getEvents);
+
+router.get("/categories", getCategories);
 
 router.get("/:id", getEvent);
 router.delete("/:id", auth, deleteEvent);

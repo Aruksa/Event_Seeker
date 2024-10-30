@@ -16,10 +16,15 @@ import {
   Alert,
   AlertIcon,
   AlertTitle,
+  Badge,
+  Wrap,
+  WrapItem,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { CiLocationOn } from "react-icons/ci";
 import { MdOutlineCalendarToday } from "react-icons/md";
+import { useCategoriesContext } from "../contexts/categoriesContext";
+import { category } from "../types/category";
 
 export interface singleEvent {
   event: {
@@ -42,6 +47,7 @@ export interface singleEvent {
 }
 
 function EventDetails() {
+  const { categories } = useCategoriesContext();
   const params = useParams();
 
   const [event, setEvent] = useState<singleEvent>();
@@ -58,6 +64,7 @@ function EventDetails() {
   }, []);
 
   console.log(event);
+  // console.log(categories);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -73,8 +80,6 @@ function EventDetails() {
 
   return (
     <>
-      <div></div>
-
       {error && (
         <Alert borderRadius={10} status="error">
           <AlertIcon />
@@ -98,7 +103,9 @@ function EventDetails() {
               h={{ base: "100%", sm: "400px", lg: "500px" }}
             />
           </Flex>
-          <Stack spacing={{ base: 6, md: 10 }}>
+          <Stack
+          // spacing={{ base: 6, md: 10 }}
+          >
             <Box as={"header"}>
               <Heading
                 lineHeight={1.1}
@@ -107,7 +114,7 @@ function EventDetails() {
               >
                 {event?.event.title}
               </Heading>
-              <Flex align="center" fontWeight={300} fontSize={"2xl"} mt={2}>
+              <Flex align="center" fontWeight={300} fontSize={"2xl"}>
                 <CiLocationOn style={{ marginRight: "0.5rem" }} />{" "}
                 {/* Adds slight space */}
                 <Text as="span">
@@ -118,7 +125,7 @@ function EventDetails() {
             </Box>
 
             <Stack
-              spacing={{ base: 4, sm: 6 }}
+              // spacing={{ base: 4, sm: 6 }}
               direction={"column"}
               divider={<StackDivider borderColor="gray.200" />}
             >
@@ -150,23 +157,31 @@ function EventDetails() {
               <Box>
                 <Text
                   fontSize={{ base: "16px", lg: "18px" }}
-                  // color="yellow.500"
                   fontWeight={"500"}
                   textTransform={"uppercase"}
                   mb={"4"}
                 >
                   Categories
                 </Text>
-
-                <List spacing={2}>
-                  {/* {event?.categories?.map((category: number) => (
-                    <ListItem key={category}>
-                      <Text as={"span"} fontWeight={"bold"}>
-                        {category}
-                      </Text>
-                    </ListItem>
-                  ))} */}
-                </List>
+                <Wrap spacing={2}>
+                  {categories
+                    .filter((category: category) =>
+                      event?.categories.includes(category.id)
+                    )
+                    .map((category: category) => (
+                      <WrapItem key={category.id}>
+                        <Badge
+                          colorScheme="blue"
+                          fontSize="sm"
+                          px={3}
+                          py={1}
+                          borderRadius="full"
+                        >
+                          {category.name}
+                        </Badge>
+                      </WrapItem>
+                    ))}
+                </Wrap>
               </Box>
             </Stack>
           </Stack>
