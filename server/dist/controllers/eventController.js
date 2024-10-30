@@ -122,7 +122,11 @@ const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 "thumbnail",
                 "startDate",
                 "endDate",
-                [(0, sequelize_1.fn)("AVG", (0, sequelize_1.col)("attendances.attendance_type")), "avg_attendance"],
+                // [fn("AVG", col("attendances.attendance_type")), "avg_attendance"],
+                [
+                    (0, sequelize_1.fn)("COALESCE", (0, sequelize_1.fn)("AVG", (0, sequelize_1.col)("attendances.attendance_type")), 0),
+                    "avg_attendance",
+                ],
             ],
             where: whereClause,
             include: [

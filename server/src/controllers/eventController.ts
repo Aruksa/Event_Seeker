@@ -139,7 +139,11 @@ export const getEvents = async (req: Request, res: Response) => {
         "thumbnail",
         "startDate",
         "endDate",
-        [fn("AVG", col("attendances.attendance_type")), "avg_attendance"],
+        // [fn("AVG", col("attendances.attendance_type")), "avg_attendance"],
+        [
+          fn("COALESCE", fn("AVG", col("attendances.attendance_type")), 0),
+          "avg_attendance",
+        ],
       ],
       where: whereClause,
       include: [

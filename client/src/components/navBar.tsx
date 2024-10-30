@@ -22,7 +22,12 @@ const NavBar = () => {
       </Link>
       <Spacer />
       {userState.token ? (
-        <Button onClick={handleLogout}>Logout</Button>
+        <>
+          <Link to={"/post"}>
+            <Button>Create New</Button>
+          </Link>
+          <Button onClick={handleLogout}>Logout</Button>
+        </>
       ) : (
         <>
           <Link to="/login">

@@ -19,6 +19,8 @@ import {
   Badge,
   Wrap,
   WrapItem,
+  Button,
+  ButtonGroup,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { CiLocationOn } from "react-icons/ci";
@@ -110,11 +112,16 @@ function EventDetails() {
               <Heading
                 lineHeight={1.1}
                 fontWeight={600}
-                fontSize={{ base: "2xl", sm: "4xl", lg: "5xl" }}
+                fontSize={{ base: "2xl", sm: "3xl", lg: "4xl" }}
               >
                 {event?.event.title}
               </Heading>
-              <Flex align="center" fontWeight={300} fontSize={"2xl"}>
+              <Flex
+                align="center"
+                fontWeight={300}
+                fontSize={"2xl"}
+                paddingTop={1}
+              >
                 <CiLocationOn style={{ marginRight: "0.5rem" }} />{" "}
                 {/* Adds slight space */}
                 <Text as="span">
@@ -184,6 +191,79 @@ function EventDetails() {
                 </Wrap>
               </Box>
             </Stack>
+
+            <Box bg="white" p={6} borderRadius="xl" boxShadow="sm">
+              <Flex
+                gap={4}
+                direction={{ base: "column", sm: "row" }}
+                alignItems="center" // Center items vertically
+                justifyContent="center" // Use Flex to control direction
+                width="100%"
+              >
+                <Button
+                  p={2} // Reduce padding for smaller button
+                  fontSize="sm" // Smaller font size
+                  border="1px solid" // Reduce border width
+                  borderColor="green.600"
+                  color="green.600"
+                  bg="gray.50"
+                  _hover={{
+                    bg: "green.600",
+                    color: "white",
+                    transform: "translateY(-2px)",
+                  }}
+                  transition="all 0.2s"
+                >
+                  <Text fontWeight="semibold">{event?.going}</Text>
+                  <Text fontSize="xs" fontWeight="medium" marginLeft={1}>
+                    Going
+                  </Text>{" "}
+                  {/* Smaller text size */}
+                </Button>
+
+                <Button
+                  p={2} // Reduce padding for smaller button
+                  fontSize="sm" // Smaller font size
+                  border="1px solid" // Reduce border width
+                  borderColor="red.600"
+                  color="red.600"
+                  bg="gray.50"
+                  _hover={{
+                    bg: "red.600",
+                    color: "white",
+                    transform: "translateY(-2px)",
+                  }}
+                  transition="all 0.2s"
+                >
+                  <Text fontWeight="semibold">{event?.not_interested} </Text>
+                  <Text fontSize="xs" fontWeight="medium" marginLeft={1}>
+                    Not Going
+                  </Text>{" "}
+                  {/* Smaller text size */}
+                </Button>
+
+                <Button
+                  p={2} // Reduce padding for smaller button
+                  fontSize="sm" // Smaller font size
+                  border="1px solid" // Reduce border width
+                  borderColor="blue.600"
+                  color="blue.600"
+                  bg="gray.50"
+                  _hover={{
+                    bg: "blue.600",
+                    color: "white",
+                    transform: "translateY(-2px)",
+                  }}
+                  transition="all 0.2s"
+                >
+                  <Text fontWeight="semibold">{event?.interested}</Text>
+                  <Text fontSize="xs" fontWeight="medium" marginLeft={1}>
+                    Interested
+                  </Text>{" "}
+                  {/* Smaller text size */}
+                </Button>
+              </Flex>
+            </Box>
           </Stack>
         </SimpleGrid>
       </Container>

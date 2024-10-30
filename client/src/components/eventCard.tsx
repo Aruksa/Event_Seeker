@@ -6,20 +6,30 @@ interface Props {
 }
 
 function EventCard({ event }: Props) {
+  console.log(event);
+
   return (
-    <Card overflow="hidden">
-      <Center>
-        <Image
-          src={event.thumbnail}
-          boxSize="200px" // Set a fixed size for the image
-          objectFit="cover" // Maintain aspect ratio while filling the box
-          borderRadius="10px 10px 10px 10px"
-          alt={event.title}
-        />
-      </Center>
+    <Card
+      overflow="hidden"
+      borderRadius="lg"
+      width="350px"
+      height="300px"
+      border="none"
+      boxShadow="none"
+    >
+      {" "}
+      {/* Added fixed height */}
+      <Image
+        src={event.thumbnail}
+        width="100%" // Set width to fill the card
+        height="200px" // Adjust height to make it rectangular
+        objectFit="cover" // Maintain aspect ratio while filling the space
+        alt={event.title}
+        borderRadius="10px 10px 10px 10px" // Rounded top corners only
+      />
       <CardBody>
-        <Heading fontSize="2xl">{event.title}</Heading>
-        <Text>{event.mode}</Text>
+        <Heading fontSize="lg">{event.title}</Heading>
+        <Text>{event.avg_attendance}</Text>
       </CardBody>
     </Card>
   );
