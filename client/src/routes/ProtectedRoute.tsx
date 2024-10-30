@@ -6,10 +6,10 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user } = useUserContext();
+  const { userState } = useUserContext();
 
   // If a user token exists, redirect to the home page
-  return user ? <Navigate to="/" replace /> : children;
+  return userState.token ? <Navigate to="/" replace /> : children;
 };
 
 export default ProtectedRoute;

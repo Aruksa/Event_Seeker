@@ -22,7 +22,7 @@ const Login = () => {
     password: "",
   });
   const cookies = new Cookies();
-  const { setUser } = useUserContext();
+  const { userDispatch } = useUserContext();
 
   const [error, setError] = useState("");
   const [isError, setIsError] = useState(false);
@@ -43,7 +43,7 @@ const Login = () => {
     if (isFormValid) {
       try {
         const response = await loginUser(formData);
-        setUser(response);
+        userDispatch({ type: "login", payload: response });
         cookies.set("token", response, { expires: expirationDate });
         setFormData({ email: "", password: "" });
         console.log("Login successful, token received:", response);
@@ -93,11 +93,18 @@ const Login = () => {
             variant="outline"
             placeholder="Password"
           />
-          <Button type="submit" colorScheme="red">
+          <Button
+            type="submit"
+            bg="#e83e6b"
+            color={"white"}
+            _hover={{
+              bg: "#B91C48",
+            }}
+          >
             Log in
           </Button>
           <HStack justify="center">
-            <Text>Not a user?</Text>
+            <Text>Not a member yet?</Text>
             <Link to="/register">
               <Button variant="link" color="#00616E">
                 Sign up

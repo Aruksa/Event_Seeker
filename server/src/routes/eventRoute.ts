@@ -11,7 +11,7 @@ const express = require("express");
 const router = express.Router();
 
 router.post("/", auth, postEvent);
-router.get("/", auth, getEvents);
+router.get("/", getEvents);
 
 router.get("/:id", getEvent);
 router.delete("/:id", auth, deleteEvent);

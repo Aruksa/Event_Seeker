@@ -14,6 +14,8 @@ import "./index.css";
 import Login from "./components/login";
 import SignUp from "./components/register";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import EventsGrid from "./components/eventsGrid";
+import EventDetails from "./components/eventDetails";
 
 const router = createBrowserRouter([
   {
@@ -28,6 +30,15 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      {
+        path: "/",
+        element: <EventsGrid />,
+      },
+      {
+        path: "/events/:id",
+        element: <EventDetails />,
+      },
+
       {
         path: "/register",
         element: (

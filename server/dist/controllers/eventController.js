@@ -136,10 +136,7 @@ const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             subQuery: false,
             offset,
         });
-        res.status(200).json({
-            events: events,
-            currentPage: page,
-        });
+        res.status(200).json(events);
     }
     catch (error) {
         res.status(400).send(error);

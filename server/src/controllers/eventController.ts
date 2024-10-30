@@ -154,10 +154,7 @@ export const getEvents = async (req: Request, res: Response) => {
       offset,
     });
 
-    res.status(200).json({
-      events: events,
-      currentPage: page,
-    });
+    res.status(200).json(events);
   } catch (error) {
     res.status(400).send(error);
   }

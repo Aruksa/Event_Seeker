@@ -6,7 +6,7 @@ const auth = require("../middlewares/auth");
 const express = require("express");
 const router = express.Router();
 router.post("/", auth, eventController_1.postEvent);
-router.get("/", auth, eventController_1.getEvents);
+router.get("/", eventController_1.getEvents);
 router.get("/:id", eventController_1.getEvent);
 router.delete("/:id", auth, eventController_1.deleteEvent);
 router.put("/:id", auth, eventController_1.updateEvent);

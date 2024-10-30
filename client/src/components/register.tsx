@@ -23,7 +23,7 @@ const SignUp = () => {
     password: "",
   });
   const cookies = new Cookies();
-  const { setUser } = useUserContext();
+  const { userDispatch } = useUserContext();
 
   const [error, setError] = useState("");
   const [isError, setIsError] = useState(false);
@@ -45,10 +45,10 @@ const SignUp = () => {
 
     if (isFormValid) {
       try {
-        const data = await createUser(formData);
-        setUser(data);
-        cookies.set("token", data, { expires: expirationDate });
-        console.log("Signup successful:", data);
+        const response = await createUser(formData);
+        userDispatch({ type: "login", payload: response });
+        cookies.set("token", response, { expires: expirationDate });
+        console.log("Signup successful:", response);
         setFormData({ name: "", email: "", password: "" });
       } catch (err: any) {
         setError(err.message);
@@ -103,11 +103,18 @@ const SignUp = () => {
             variant="outline"
             placeholder="Password"
           />
-          <Button type="submit" colorScheme="red">
+          <Button
+            type="submit"
+            bg="#e83e6b"
+            color={"white"}
+            _hover={{
+              bg: "#B91C48",
+            }}
+          >
             Sign up
           </Button>
           <HStack justify="center">
-            <Text>Already a user?</Text>
+            <Text>Already a member?</Text>
             <Link to="/login">
               <Button variant="link" color="#00616E">
                 Log in

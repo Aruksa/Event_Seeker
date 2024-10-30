@@ -5,13 +5,14 @@ import Cookies from "universal-cookie";
 import { IoHome } from "react-icons/io5";
 
 const NavBar = () => {
+  const { userState, userDispatch } = useUserContext();
+
   const cookies = new Cookies();
   const handleLogout = () => {
-    setUser("");
+    userDispatch({ type: "logout", payload: "" });
     cookies.remove("token");
   };
 
-  const { user, setUser } = useUserContext();
   return (
     <HStack justifyContent="flex-start" padding="20px">
       <Link to="/">
@@ -20,7 +21,7 @@ const NavBar = () => {
         </Button>
       </Link>
       <Spacer />
-      {user ? (
+      {userState.token ? (
         <Button onClick={handleLogout}>Logout</Button>
       ) : (
         <>
