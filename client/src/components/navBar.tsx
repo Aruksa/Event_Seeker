@@ -1,16 +1,18 @@
 import { Button, HStack, Image, Spacer } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useUserContext } from "../contexts/userContext";
 import Cookies from "universal-cookie";
 import { IoHome } from "react-icons/io5";
 
 const NavBar = () => {
+  const navigate = useNavigate();
   const { userState, userDispatch } = useUserContext();
 
   const cookies = new Cookies();
-  const handleLogout = () => {
+  const handleLogout = async () => {
     userDispatch({ type: "logout", payload: "" });
-    cookies.remove("token");
+    await cookies.remove("token");
+    navigate("/");
   };
 
   return (

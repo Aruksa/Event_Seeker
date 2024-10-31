@@ -17,8 +17,10 @@ import {
   Textarea,
 } from "@chakra-ui/react";
 import { category } from "../types/category";
+import { useNavigate } from "react-router-dom";
 
 const EventPost = () => {
+  const navigate = useNavigate();
   const { userState } = useUserContext();
   const { categories } = useCategoriesContext();
   const { eventsState, eventsDispatch } = useEventsContext();
@@ -49,6 +51,12 @@ const EventPost = () => {
     label: category.name,
   }));
 
+  const modeOptions = [
+    { value: "Online", label: "Online" },
+    { value: "Physical", label: "Physical" },
+    { value: "Hybrid", label: "Hybrid" },
+  ];
+
   const isFormValid =
     newEvent.title.trim() !== "" &&
     newEvent.venue.trim() !== "" &&
@@ -78,6 +86,7 @@ const EventPost = () => {
           });
           setErrorMessage(""); // Clear error message on successful submission
           setIsErrorVisible(false); // Hide error popup
+          navigate("/");
         })
         .catch((error) => console.log(error));
     } else {
@@ -104,6 +113,12 @@ const EventPost = () => {
     }); // Update categories in newEvent
   };
 
+  const handleModeChange = (selectedOption: any) => {
+    setNewEvent({
+      ...newEvent,
+      mode: selectedOption.value, // Update mode in newEvent
+    });
+  };
   // console.log(newEvent);
 
   return (
@@ -111,7 +126,7 @@ const EventPost = () => {
       <Box display="flex" justifyContent="center" padding={5}>
         {/* Container Grid for Image and Form */}
         <Grid
-          templateColumns="1fr 2fr"
+          templateColumns={{ base: "1fr", md: "1fr 2fr" }}
           gap={10}
           alignItems="center"
           maxWidth="80%"
@@ -123,6 +138,8 @@ const EventPost = () => {
             objectFit="cover"
             borderRadius="lg"
             boxSize="400px"
+            width="100%" // Adjust width to 100% for responsiveness
+            height="auto" // Maintain aspect ratio
           />
 
           {/* Right Column: Event Form */}
@@ -199,16 +216,24 @@ const EventPost = () => {
                 />
 
                 <label htmlFor="mode">Mode</label>
-                <Input
-                  id="mode"
-                  type="text"
-                  variant="unstyled"
-                  value={newEvent.mode}
-                  placeholder="Insert mode..."
-                  onChange={handleChange}
-                  backgroundColor="white"
-                  _placeholder={{ color: "gray.500" }}
-                />
+                <Box>
+                  <Select
+                    name="mode"
+                    options={modeOptions}
+                    classNamePrefix="select"
+                    onChange={handleModeChange} // Handle mode change
+                    placeholder="Select Mode"
+                    aria-label="Select Mode"
+                    styles={{
+                      control: (base) => ({
+                        ...base,
+                        backgroundColor: "white",
+                        borderColor: "#CBD5E0",
+                        minHeight: "40px",
+                      }),
+                    }}
+                  />
+                </Box>
 
                 <label htmlFor="thumbnail">Thumbnail</label>
                 <Input
@@ -240,44 +265,44 @@ const EventPost = () => {
                   onChange={handleChange}
                 />
 
-                <Select
-                  isMulti
-                  name="categories"
-                  options={categoryOptions}
-                  classNamePrefix="select"
-                  onChange={handleCategoryChange}
-                  placeholder="Select Categories"
-                  aria-label="Select Categories"
-                  styles={{
-                    control: (base) => ({
-                      ...base,
-                      backgroundColor: "white",
-                      borderColor: "#CBD5E0",
-                      "&:hover": {
-                        borderColor: "#B2F5EA",
-                      },
-                    }),
-                    multiValue: (base) => ({
-                      ...base,
-                      backgroundColor: "#B2F5EA",
-                      color: "black",
-                    }),
-                    multiValueLabel: (base) => ({
-                      ...base,
-                      color: "black",
-                    }),
-                    multiValueRemove: (base) => ({
-                      ...base,
-                      color: "black",
-                      "&:hover": {
-                        backgroundColor: "red",
-                        color: "white",
-                      },
-                    }),
-                  }}
-                />
+                <label>Categories</label>
+                <Box>
+                  <Select
+                    isMulti
+                    name="categories"
+                    options={categoryOptions}
+                    classNamePrefix="select"
+                    onChange={handleCategoryChange}
+                    placeholder="Select Categories"
+                    aria-label="Select Categories"
+                    styles={{
+                      control: (base) => ({
+                        ...base,
+                        backgroundColor: "white",
+                        borderColor: "#CBD5E0",
+                        minHeight: "40px", // Adjust minHeight to match other inputs
+                      }),
+                      multiValue: (base) => ({
+                        ...base,
+                        backgroundColor: "#B2F5EA",
+                        color: "black",
+                      }),
+                      multiValueLabel: (base) => ({
+                        ...base,
+                        color: "black",
+                      }),
+                      multiValueRemove: (base) => ({
+                        ...base,
+                        color: "black",
+                        "&:hover": {
+                          backgroundColor: "red",
+                          color: "white",
+                        },
+                      }),
+                    }}
+                  />
+                </Box>
               </Grid>
-
               <Button type="submit" colorScheme="blue" width="100%">
                 Create
               </Button>
