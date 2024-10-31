@@ -7,6 +7,7 @@ const express = require("express");
 const router = express.Router();
 router.post("/", auth, eventController_1.postEvent);
 router.get("/", eventController_1.getEvents);
+router.get("/myEvents", auth, eventController_1.getEvents);
 router.get("/categories", eventController_1.getCategories);
 router.get("/:id", eventController_1.getEvent);
 router.delete("/:id", auth, eventController_1.deleteEvent);

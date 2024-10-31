@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useEventsContext } from "../contexts/eventsContext";
-import { SimpleGrid, Box } from "@chakra-ui/react";
+import { SimpleGrid, Box, Heading } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import EventCard from "./eventCard";
 import { EventsSearch } from "./eventsSearch";
@@ -20,6 +20,7 @@ function EventsGrid() {
         {" "}
         {/* Adjust width as needed */}
         <EventsSearch />
+        <Heading paddingTop={4}>Discover Event Listings</Heading>
         <SimpleGrid
           columns={{ sm: 1, md: 2, lg: 2, xl: 3 }} // Adjust columns based on screen size
           padding={10}

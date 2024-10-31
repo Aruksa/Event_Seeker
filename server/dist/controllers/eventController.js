@@ -79,6 +79,7 @@ const postEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.postEvent = postEvent;
 const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.user ? req.user.id : null;
     try {
         // Pagination parameters
         const page = parseInt(req.query.page) || 1;
@@ -108,6 +109,9 @@ const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
         else if (endDate) {
             whereClause.startDate = { [sequelize_1.Op.lte]: endDate }; // Filter events up to end date
+        }
+        if (userId) {
+            whereClause.userId = userId; // Assuming events have a `userId` field for ownership
         }
         //Fetch paginated events with filters applied and avg_attendance
         const events = yield eventModel.findAll({

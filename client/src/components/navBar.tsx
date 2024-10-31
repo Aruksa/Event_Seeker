@@ -25,6 +25,9 @@ const NavBar = () => {
       <Spacer />
       {userState.token ? (
         <>
+          <Link to={"/myEvents"}>
+            <Button>My Events</Button>
+          </Link>
           <Link to={"/post"}>
             <Button>Create New</Button>
           </Link>

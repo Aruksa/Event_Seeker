@@ -14,6 +14,8 @@ const router = express.Router();
 router.post("/", auth, postEvent);
 router.get("/", getEvents);
 
+router.get("/myEvents",auth,getEvents);
+
 router.get("/categories", getCategories);
 
 router.get("/:id", getEvent);

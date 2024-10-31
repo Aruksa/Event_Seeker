@@ -19,6 +19,7 @@ import EventDetails from "./components/eventDetails";
 import { EventsSearch } from "./components/eventsSearch";
 import EventPost from "./components/eventPost";
 import PostProtectedRoute from "./routes/postProtectedRoute";
+import EventsMy from "./components/eventsMy";
 
 const router = createBrowserRouter([
   {
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
             <EventPost />
           </PostProtectedRoute>
         ),
+      },
+      {
+        path: "/myEvents",
+        element: <EventsMy />,
       },
 
       {

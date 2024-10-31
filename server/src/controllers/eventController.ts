@@ -94,6 +94,7 @@ export const postEvent = async (req: Request, res: Response) => {
 };
 
 export const getEvents = async (req: Request, res: Response) => {
+  const userId = req.user ? req.user.id : null;
   try {
     // Pagination parameters
     const page = parseInt(req.query.page as string) || 1;
@@ -124,6 +125,10 @@ export const getEvents = async (req: Request, res: Response) => {
       whereClause.startDate = { [Op.gte]: startDate }; // Filter events from start date onwards
     } else if (endDate) {
       whereClause.startDate = { [Op.lte]: endDate }; // Filter events up to end date
+    }
+
+    if (userId) {
+      whereClause.userId = userId; // Assuming events have a `userId` field for ownership
     }
 
     //Fetch paginated events with filters applied and avg_attendance

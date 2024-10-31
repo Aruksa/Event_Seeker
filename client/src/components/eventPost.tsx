@@ -1,9 +1,10 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import { useCategoriesContext } from "../contexts/categoriesContext";
 import { useEventsContext } from "../contexts/eventsContext";
 import { useUserContext } from "../contexts/userContext";
 import axios from "axios";
 import Select from "react-select";
+import countryList from "react-select-country-list";
 import {
   Alert,
   AlertIcon,
@@ -25,6 +26,8 @@ const EventPost = () => {
   const { categories } = useCategoriesContext();
   const { eventsState, eventsDispatch } = useEventsContext();
 
+  const [image, setImage] = useState("");
+
   const [newEvent, setNewEvent] = useState({
     title: "",
     venue: "",
@@ -37,6 +40,8 @@ const EventPost = () => {
     endDate: "",
     categories: [],
   });
+
+  const countryOptions = useMemo(() => countryList().getData(), []);
 
   const getCurrentDateTime = () => {
     const now = new Date();
@@ -51,6 +56,12 @@ const EventPost = () => {
     label: category.name,
   }));
 
+  const handleCountryChange = (selectedCountry: any) => {
+    setNewEvent({
+      ...newEvent,
+      country: selectedCountry.value,
+    });
+  };
   const modeOptions = [
     { value: "Online", label: "Online" },
     { value: "Physical", label: "Physical" },
@@ -124,27 +135,24 @@ const EventPost = () => {
   return (
     <>
       <Box display="flex" justifyContent="center" padding={5}>
-        {/* Container Grid for Image and Form */}
         <Grid
-          templateColumns={{ base: "1fr", md: "1fr 2fr" }}
-          gap={10}
-          alignItems="center"
+          templateColumns={{ base: "1fr", md: "1fr 1fr" }}
+          gap={8}
+          alignItems="stretch"
           maxWidth="80%"
         >
-          {/* Left Column: Image Placeholder */}
           <Image
-            src="https://img.freepik.com/free-vector/connected-world-concept-illustration_114360-3621.jpg?t=st=1730347198~exp=1730350798~hmac=58d7b76e416022edc8362d2a642acb02a2e09c81580c75223f363501b6da2838&w=740"
+            src="https://images.unsplash.com/photo-1485872299829-c673f5194813?q=80&w=2054&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             alt="Event Image"
             objectFit="cover"
             borderRadius="lg"
-            boxSize="400px"
-            width="100%" // Adjust width to 100% for responsiveness
-            height="auto" // Maintain aspect ratio
+            width="100%"
+            height="100%" // Ensures the image fills the height of the grid row
+            maxHeight="100vh"
           />
 
-          {/* Right Column: Event Form */}
           <form onSubmit={handleAddEvent}>
-            <Stack padding={5} spacing={5}>
+            <Stack padding={3} spacing={4}>
               {isErrorVisible && (
                 <Alert borderRadius={10} status="error">
                   <AlertIcon />
@@ -152,158 +160,166 @@ const EventPost = () => {
                 </Alert>
               )}
 
-              <Grid templateColumns="150px 1fr" gap={5} alignItems="center">
-                <label htmlFor="title">Title</label>
-                <Input
-                  id="title"
-                  type="text"
-                  variant="unstyled"
-                  value={newEvent.title}
-                  placeholder="Insert a title..."
-                  onChange={handleChange}
-                  backgroundColor="white"
-                  _placeholder={{ color: "gray.500" }}
-                />
+              <label htmlFor="title" style={{ fontSize: "1.1rem" }}>
+                Title
+              </label>
+              <Input
+                id="title"
+                type="text"
+                variant="outline"
+                value={newEvent.title}
+                onChange={handleChange}
+                backgroundColor="white"
+                boxShadow="md"
+              />
 
-                <label htmlFor="venue">Venue</label>
-                <Input
-                  id="venue"
-                  type="text"
-                  variant="unstyled"
-                  value={newEvent.venue}
-                  placeholder="Insert venue..."
-                  onChange={handleChange}
-                  backgroundColor="white"
-                  _placeholder={{ color: "gray.500" }}
-                />
+              <label htmlFor="venue">Venue</label>
+              <Input
+                id="venue"
+                type="text"
+                variant="outline"
+                value={newEvent.venue}
+                placeholder="Insert venue..."
+                onChange={handleChange}
+                backgroundColor="white"
+                boxShadow="md"
+              />
 
-                {/* City and Country on the Same Row */}
-                <label>Location</label>
-                <Grid templateColumns="1fr 1fr" gap={5}>
+              <Grid templateColumns="1fr 1fr" gap={3}>
+                <Box>
+                  <label htmlFor="city">City</label>
                   <Input
                     id="city"
                     type="text"
-                    variant="unstyled"
+                    variant="outline"
                     value={newEvent.city}
                     placeholder="City"
                     onChange={handleChange}
                     backgroundColor="white"
-                    _placeholder={{ color: "gray.500" }}
+                    boxShadow="md"
                   />
-                  <Input
-                    id="country"
-                    type="text"
-                    variant="unstyled"
-                    value={newEvent.country}
-                    placeholder="Country"
-                    onChange={handleChange}
-                    backgroundColor="white"
-                    _placeholder={{ color: "gray.500" }}
-                  />
-                </Grid>
-
-                <label htmlFor="description">Description</label>
-                <Textarea
-                  id="description"
-                  variant="unstyled"
-                  value={newEvent.description}
-                  placeholder="Description..."
-                  onChange={handleChange}
-                  backgroundColor="white"
-                  _placeholder={{ color: "gray.500" }}
-                  maxH="200px" // Set max height for the Textarea
-                  overflowY="auto"
-                />
-
-                <label htmlFor="mode">Mode</label>
+                </Box>
                 <Box>
+                  <label>Country</label>
                   <Select
-                    name="mode"
-                    options={modeOptions}
-                    classNamePrefix="select"
-                    onChange={handleModeChange} // Handle mode change
-                    placeholder="Select Mode"
-                    aria-label="Select Mode"
+                    options={countryOptions}
+                    value={countryOptions.find(
+                      (option) => option.value === newEvent.country
+                    )}
+                    onChange={handleCountryChange}
+                    placeholder="Country"
                     styles={{
                       control: (base) => ({
                         ...base,
                         backgroundColor: "white",
                         borderColor: "#CBD5E0",
                         minHeight: "40px",
-                      }),
-                    }}
-                  />
-                </Box>
-
-                <label htmlFor="thumbnail">Thumbnail</label>
-                <Input
-                  id="thumbnail"
-                  type="text"
-                  variant="unstyled"
-                  value={newEvent.thumbnail}
-                  placeholder="Insert thumbnail..."
-                  onChange={handleChange}
-                  backgroundColor="white"
-                  _placeholder={{ color: "gray.500" }}
-                />
-
-                <label htmlFor="startDate">Start Date</label>
-                <input
-                  id="startDate"
-                  type="datetime-local"
-                  value={newEvent.startDate}
-                  min={getCurrentDateTime()}
-                  onChange={handleChange}
-                />
-
-                <label htmlFor="endDate">End Date</label>
-                <input
-                  id="endDate"
-                  type="datetime-local"
-                  value={newEvent.endDate}
-                  min={getCurrentDateTime()}
-                  onChange={handleChange}
-                />
-
-                <label>Categories</label>
-                <Box>
-                  <Select
-                    isMulti
-                    name="categories"
-                    options={categoryOptions}
-                    classNamePrefix="select"
-                    onChange={handleCategoryChange}
-                    placeholder="Select Categories"
-                    aria-label="Select Categories"
-                    styles={{
-                      control: (base) => ({
-                        ...base,
-                        backgroundColor: "white",
-                        borderColor: "#CBD5E0",
-                        minHeight: "40px", // Adjust minHeight to match other inputs
-                      }),
-                      multiValue: (base) => ({
-                        ...base,
-                        backgroundColor: "#B2F5EA",
-                        color: "black",
-                      }),
-                      multiValueLabel: (base) => ({
-                        ...base,
-                        color: "black",
-                      }),
-                      multiValueRemove: (base) => ({
-                        ...base,
-                        color: "black",
-                        "&:hover": {
-                          backgroundColor: "red",
-                          color: "white",
-                        },
+                        boxShadow: "md",
                       }),
                     }}
                   />
                 </Box>
               </Grid>
-              <Button type="submit" colorScheme="blue" width="100%">
+
+              <Grid templateColumns="1fr 1fr" gap={3}>
+                <Box>
+                  <label htmlFor="mode">Mode</label>
+                  <Select
+                    options={modeOptions}
+                    onChange={handleModeChange}
+                    placeholder="Select Mode"
+                    styles={{
+                      control: (base) => ({
+                        ...base,
+                        backgroundColor: "white",
+                        borderColor: "#CBD5E0",
+                        minHeight: "40px",
+                        boxShadow: "md",
+                      }),
+                    }}
+                  />
+                </Box>
+                <Box>
+                  <label htmlFor="thumbnail">
+                    {/* <Button>Upload</Button> */}
+                  </label>
+                  <Input
+                    id="thumbnail"
+                    type="text"
+                    variant="outline"
+                    value={newEvent.thumbnail}
+                    placeholder="Insert thumbnail..."
+                    onChange={handleChange}
+                    backgroundColor="white"
+                    boxShadow="md"
+                  />
+                </Box>
+              </Grid>
+
+              <Grid templateColumns="1fr 1fr" gap={3}>
+                <Box>
+                  <label htmlFor="startDate">Start Date</label>
+                  <Input
+                    id="startDate"
+                    type="datetime-local"
+                    variant="outline"
+                    value={newEvent.startDate}
+                    min={getCurrentDateTime()}
+                    onChange={handleChange}
+                    boxShadow="md"
+                  />
+                </Box>
+                <Box>
+                  <label htmlFor="endDate">End Date</label>
+                  <Input
+                    id="endDate"
+                    type="datetime-local"
+                    variant="outline"
+                    value={newEvent.endDate}
+                    min={getCurrentDateTime()}
+                    onChange={handleChange}
+                    boxShadow="md"
+                  />
+                </Box>
+              </Grid>
+
+              <label>Categories</label>
+              <Select
+                isMulti
+                options={categoryOptions}
+                onChange={handleCategoryChange}
+                placeholder="Select Categories"
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    backgroundColor: "white",
+                    borderColor: "#CBD5E0",
+                    minHeight: "40px",
+                    boxShadow: "md",
+                  }),
+                }}
+              />
+
+              <label htmlFor="description">Description</label>
+              <Textarea
+                id="description"
+                variant="outline"
+                value={newEvent.description}
+                placeholder="Description..."
+                onChange={handleChange}
+                backgroundColor="white"
+                boxShadow="md"
+              />
+              <Button
+                type="submit"
+                colorScheme=""
+                width="100%"
+                bg="#e83e6b"
+                color={"white"}
+                _hover={{
+                  bg: "#B91C48",
+                }}
+              >
                 Create
               </Button>
             </Stack>
