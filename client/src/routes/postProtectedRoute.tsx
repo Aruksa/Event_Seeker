@@ -1,15 +1,18 @@
 import { Navigate } from "react-router-dom";
-import { useUserContext } from "../contexts/userContext";
+import Cookies from "universal-cookie";
 
 interface ProtectedRouteProps {
   children: JSX.Element;
 }
 
 const PostProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { userState } = useUserContext();
+  const cookies = new Cookies();
+  const token = cookies.get("token");
+
+  const isAuthenticated = !!token;
 
   // If a user token exists, redirect to the home page
-  return userState.token ? children : <Navigate to="/" replace />;
+  return isAuthenticated ? children : <Navigate to="/" replace />;
 };
 
 export default PostProtectedRoute;

@@ -12,7 +12,7 @@ function EventsGrid() {
   const [error, setError] = useState("");
   const [isError, setIsError] = useState(false);
 
-  console.log(events);
+  // console.log(events);
 
   return (
     <Box display="flex" justifyContent="center" width="100%">

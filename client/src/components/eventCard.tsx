@@ -6,7 +6,7 @@ interface Props {
 }
 
 function EventCard({ event }: Props) {
-  console.log(event);
+  // console.log(event);
 
   return (
     <Card
