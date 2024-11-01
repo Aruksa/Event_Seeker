@@ -20,6 +20,7 @@ import { EventsSearch } from "./components/eventsSearch";
 import EventPost from "./components/eventPost";
 import PostProtectedRoute from "./routes/postProtectedRoute";
 import EventsMy from "./components/eventsMy";
+import EventEdit from "./components/eventEdit";
 
 const router = createBrowserRouter([
   {
@@ -54,6 +55,10 @@ const router = createBrowserRouter([
       {
         path: "/events/:id",
         element: <EventDetails />,
+      },
+      {
+        path: "/events/edit/:id",
+        element: <EventEdit />,
       },
 
       {
