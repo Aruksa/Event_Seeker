@@ -10,11 +10,15 @@ export const postScore = async (req: Request, res: Response) => {
     const user = req.user;
     const eventId = req.params.id;
 
-    let attendance = await attendanceModel.create({
+    let attendance: any = await attendanceModel.create({
       userId: user.id,
       eventId: eventId,
       attendance_type: req.body.attendance_type,
     });
+
+    if (req.body.review) {
+      attendance.review = req.body.review;
+    }
 
     res.status(201).json(attendance);
   } catch (error) {
@@ -33,6 +37,30 @@ export const getScore = async (req: Request, res: Response) => {
     if (!score)
       return res.status(404).send("This user has not voted for this event.");
     res.status(200).json(score);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
+
+export const updateScore = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    const eventId = req.params.id;
+
+    let score: any = await attendanceModel.findOne({
+      where: { userId: user.id, eventId: eventId },
+    });
+
+    if (!score) {
+      return res.status(404).send("Score not found");
+    }
+
+    const updatedScore: any = await score.update({
+      attendance_type: req.body.attendance_type || score.attendance_type,
+      review: req.body.review || score.review,
+    });
+
+    res.status(200).json(updatedScore);
   } catch (error) {
     res.status(400).send(error);
   }

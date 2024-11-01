@@ -7,6 +7,10 @@ module.exports = (sequelize) => {
             type: sequelize_1.DataTypes.INTEGER,
             allowNull: false,
         },
+        review: {
+            type: sequelize_1.DataTypes.STRING,
+            allowNull: true,
+        },
     });
     attendance.associate = (db) => {
         db.attendance.belongsTo(db.user, {

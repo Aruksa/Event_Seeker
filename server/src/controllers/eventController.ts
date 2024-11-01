@@ -1,4 +1,4 @@
-import { Model, ModelStatic } from "sequelize";
+import { literal, Model, ModelStatic } from "sequelize";
 import db from "../models/index";
 import { Request, Response } from "express";
 import { Op, fn, col } from "sequelize";
@@ -182,7 +182,44 @@ export const getEvent = async (req: Request, res: Response) => {
   try {
     const eventId = req.params.id;
 
-    const event = await eventModel.findByPk(eventId);
+    // Fetch event details with attendees' information
+    const event = await eventModel.findOne({
+      where: { id: eventId },
+      attributes: [
+        "id",
+        "title",
+        "description",
+        "mode",
+        "startDate",
+        "endDate",
+        "venue",
+        "city",
+        "country",
+        "thumbnail",
+        [
+          literal(`(
+            SELECT JSON_AGG(
+              JSON_BUILD_OBJECT(
+                'userName', users.name,
+                'attendance_type', attendances.attendance_type,
+                'review', attendances.review
+              )
+            )
+            FROM attendances
+            INNER JOIN users ON attendances."userId" = users.id
+            WHERE attendances."eventId" = ${eventId}
+          )`),
+          "attendees",
+        ],
+      ],
+      include: [
+        {
+          model: attendanceModel,
+          attributes: [], // Prevents duplication in grouping
+        },
+      ],
+      group: ["event.id"],
+    });
 
     const categories = await eventCategoryModel.findAll({
       where: { eventId: eventId },
@@ -220,9 +257,10 @@ export const getEvent = async (req: Request, res: Response) => {
     res.status(200).json({
       event: event,
       categories: categories.map((category) => category.categoryId),
-      not_interested: not_interested,
-      interested: interested,
-      going: going,
+      not_interested,
+      interested,
+      going,
+      // attendees: event.dataValues.attendees,
     });
   } catch (error) {
     res.status(400).send(error);

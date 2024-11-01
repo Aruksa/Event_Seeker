@@ -13,8 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getCategories = exports.updateEvent = exports.deleteEvent = exports.getEvent = exports.getEvents = exports.postEvent = void 0;
-const index_1 = __importDefault(require("../models/index"));
 const sequelize_1 = require("sequelize");
+const index_1 = __importDefault(require("../models/index"));
+const sequelize_2 = require("sequelize");
 const _ = require("lodash");
 const eventModel = index_1.default.event;
 const eventCategoryModel = index_1.default.event_categories;
@@ -32,18 +33,18 @@ const postEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 venue: venue,
                 city: city,
                 country: country,
-                [sequelize_1.Op.or]: [
+                [sequelize_2.Op.or]: [
                     {
                         startDate: {
-                            [sequelize_1.Op.lte]: formattedStartDate,
+                            [sequelize_2.Op.lte]: formattedStartDate,
                         },
                         endDate: {
-                            [sequelize_1.Op.gte]: formattedStartDate,
+                            [sequelize_2.Op.gte]: formattedStartDate,
                         },
                     },
                     {
                         startDate: {
-                            [sequelize_1.Op.between]: [formattedStartDate, formattedEndDate],
+                            [sequelize_2.Op.between]: [formattedStartDate, formattedEndDate],
                         },
                     },
                 ],
@@ -94,25 +95,25 @@ const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const endDate = req.query.endDate;
         const whereClause = {};
         if (search) {
-            whereClause.title = { [sequelize_1.Op.iLike]: `%${search}%` };
+            whereClause.title = { [sequelize_2.Op.iLike]: `%${search}%` };
         }
         if (country) {
-            whereClause.venue = { [sequelize_1.Op.iLike]: `%${venue}%` };
+            whereClause.venue = { [sequelize_2.Op.iLike]: `%${venue}%` };
         }
         if (city) {
-            whereClause.city = { [sequelize_1.Op.iLike]: `%${city}%` };
+            whereClause.city = { [sequelize_2.Op.iLike]: `%${city}%` };
         }
         if (country) {
-            whereClause.country = { [sequelize_1.Op.iLike]: `%${country}%` };
+            whereClause.country = { [sequelize_2.Op.iLike]: `%${country}%` };
         }
         if (startDate && endDate) {
-            whereClause.startDate = { [sequelize_1.Op.between]: [startDate, endDate] };
+            whereClause.startDate = { [sequelize_2.Op.between]: [startDate, endDate] };
         }
         else if (startDate) {
-            whereClause.startDate = { [sequelize_1.Op.gte]: startDate }; // Filter events from start date onwards
+            whereClause.startDate = { [sequelize_2.Op.gte]: startDate }; // Filter events from start date onwards
         }
         else if (endDate) {
-            whereClause.startDate = { [sequelize_1.Op.lte]: endDate }; // Filter events up to end date
+            whereClause.startDate = { [sequelize_2.Op.lte]: endDate }; // Filter events up to end date
         }
         if (userId) {
             whereClause.userId = userId; // Assuming events have a `userId` field for ownership
@@ -132,7 +133,7 @@ const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 "endDate",
                 // [fn("AVG", col("attendances.attendance_type")), "avg_attendance"],
                 [
-                    (0, sequelize_1.fn)("COALESCE", (0, sequelize_1.fn)("ROUND", (0, sequelize_1.fn)("AVG", (0, sequelize_1.col)("attendances.attendance_type")), 2), 0),
+                    (0, sequelize_2.fn)("COALESCE", (0, sequelize_2.fn)("ROUND", (0, sequelize_2.fn)("AVG", (0, sequelize_2.col)("attendances.attendance_type")), 2), 0),
                     "avg_attendance",
                 ],
             ],
@@ -159,7 +160,44 @@ exports.getEvents = getEvents;
 const getEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const eventId = req.params.id;
-        const event = yield eventModel.findByPk(eventId);
+        // Fetch event details with attendees' information
+        const event = yield eventModel.findOne({
+            where: { id: eventId },
+            attributes: [
+                "id",
+                "title",
+                "description",
+                "mode",
+                "startDate",
+                "endDate",
+                "venue",
+                "city",
+                "country",
+                "thumbnail",
+                [
+                    (0, sequelize_1.literal)(`(
+            SELECT JSON_AGG(
+              JSON_BUILD_OBJECT(
+                'userName', users.name,
+                'attendance_type', attendances.attendance_type,
+                'review', attendances.review
+              )
+            )
+            FROM attendances
+            INNER JOIN users ON attendances."userId" = users.id
+            WHERE attendances."eventId" = ${eventId}
+          )`),
+                    "attendees",
+                ],
+            ],
+            include: [
+                {
+                    model: attendanceModel,
+                    attributes: [], // Prevents duplication in grouping
+                },
+            ],
+            group: ["event.id"],
+        });
         const categories = yield eventCategoryModel.findAll({
             where: { eventId: eventId },
         });
@@ -190,9 +228,10 @@ const getEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.status(200).json({
             event: event,
             categories: categories.map((category) => category.categoryId),
-            not_interested: not_interested,
-            interested: interested,
-            going: going,
+            not_interested,
+            interested,
+            going,
+            // attendees: event.dataValues.attendees,
         });
     }
     catch (error) {
@@ -235,23 +274,23 @@ const updateEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         const formattedEndDate = new Date(req.body.endDate).toISOString();
         let events = yield eventModel.findOne({
             where: {
-                id: { [sequelize_1.Op.ne]: eventId }, // Exclude the current event
+                id: { [sequelize_2.Op.ne]: eventId }, // Exclude the current event
                 title: req.body.title,
                 venue: req.body.venue,
                 city: req.body.city,
                 country: req.body.country,
-                [sequelize_1.Op.or]: [
+                [sequelize_2.Op.or]: [
                     {
                         startDate: {
-                            [sequelize_1.Op.lte]: formattedStartDate,
+                            [sequelize_2.Op.lte]: formattedStartDate,
                         },
                         endDate: {
-                            [sequelize_1.Op.gte]: formattedStartDate,
+                            [sequelize_2.Op.gte]: formattedStartDate,
                         },
                     },
                     {
                         startDate: {
-                            [sequelize_1.Op.between]: [formattedStartDate, formattedEndDate],
+                            [sequelize_2.Op.between]: [formattedStartDate, formattedEndDate],
                         },
                     },
                 ],

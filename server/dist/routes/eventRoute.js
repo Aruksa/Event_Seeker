@@ -14,4 +14,5 @@ router.delete("/:id", auth, eventController_1.deleteEvent);
 router.put("/:id", auth, eventController_1.updateEvent);
 router.post("/:id/attds", auth, attdsController_1.postScore);
 router.get("/:id/attds", auth, attdsController_1.getScore);
+router.put("/:id/attds", auth, attdsController_1.updateScore);
 exports.default = router;

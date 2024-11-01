@@ -4,6 +4,7 @@ import { DB } from "./index";
 export interface AttendanceInstance extends Model {
   id: number;
   attendance_type: number;
+  review: string;
 }
 
 module.exports = (sequelize: Sequelize) => {
@@ -11,6 +12,10 @@ module.exports = (sequelize: Sequelize) => {
     attendance_type: {
       type: DataTypes.INTEGER,
       allowNull: false,
+    },
+    review: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
   }) as ModelStatic<AttendanceInstance> & {
     associate: (db: DB) => void;

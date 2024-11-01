@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getScore = exports.postScore = void 0;
+exports.updateScore = exports.getScore = exports.postScore = void 0;
 const index_1 = __importDefault(require("../models/index"));
 const _ = require("lodash");
 const attendanceModel = index_1.default.attendance;
@@ -25,6 +25,9 @@ const postScore = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             eventId: eventId,
             attendance_type: req.body.attendance_type,
         });
+        if (req.body.review) {
+            attendance.review = req.body.review;
+        }
         res.status(201).json(attendance);
     }
     catch (error) {
@@ -48,3 +51,24 @@ const getScore = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getScore = getScore;
+const updateScore = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = req.user;
+        const eventId = req.params.id;
+        let score = yield attendanceModel.findOne({
+            where: { userId: user.id, eventId: eventId },
+        });
+        if (!score) {
+            return res.status(404).send("Score not found");
+        }
+        const updatedScore = yield score.update({
+            attendance_type: req.body.attendance_type || score.attendance_type,
+            review: req.body.review || score.review,
+        });
+        res.status(200).json(updatedScore);
+    }
+    catch (error) {
+        res.status(400).send(error);
+    }
+});
+exports.updateScore = updateScore;
