@@ -22,6 +22,7 @@ const UploadWidget = ({ onUpload }: UploadWidgetProps) => {
       {
         cloudName: "dn6nsa6e0",
         uploadPreset: "jjimfxko",
+        multiple: false,
       },
       (error: any, result: any) => {
         if (result.event === "success") {
