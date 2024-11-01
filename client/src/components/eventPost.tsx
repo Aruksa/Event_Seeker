@@ -5,6 +5,8 @@ import { useUserContext } from "../contexts/userContext";
 import axios from "axios";
 import Select from "react-select";
 import countryList from "react-select-country-list";
+import { IoImageOutline } from "react-icons/io5";
+
 import {
   Alert,
   AlertIcon,
@@ -16,17 +18,19 @@ import {
   Stack,
   Box,
   Textarea,
+  IconButton,
+  Flex,
 } from "@chakra-ui/react";
+import { CloseIcon } from "@chakra-ui/icons";
 import { category } from "../types/category";
 import { useNavigate } from "react-router-dom";
+import UploadWidget from "./uploadWidget";
 
 const EventPost = () => {
   const navigate = useNavigate();
   const { userState } = useUserContext();
   const { categories } = useCategoriesContext();
   const { eventsState, eventsDispatch } = useEventsContext();
-
-  const [image, setImage] = useState("");
 
   const [newEvent, setNewEvent] = useState({
     title: "",
@@ -43,6 +47,13 @@ const EventPost = () => {
 
   const countryOptions = useMemo(() => countryList().getData(), []);
 
+  const handleImageUpload = (url: string) => {
+    setNewEvent({ ...newEvent, thumbnail: url });
+  };
+
+  const removeImage = () => {
+    setNewEvent({ ...newEvent, thumbnail: "" });
+  };
   const getCurrentDateTime = () => {
     const now = new Date();
     return now.toISOString().slice(0, 16); //'YYYY-MM-DDTHH:MM'
@@ -131,6 +142,15 @@ const EventPost = () => {
     });
   };
   // console.log(newEvent);
+
+  const [imagePreview, setImagePreview] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleImageChange = () => {};
+
+  const uploadImage = async (e: FormEvent) => {
+    e.preventDefault;
+  };
 
   return (
     <>
@@ -240,19 +260,35 @@ const EventPost = () => {
                   />
                 </Box>
                 <Box>
-                  <label htmlFor="thumbnail">
-                    {/* <Button>Upload</Button> */}
-                  </label>
-                  <Input
-                    id="thumbnail"
-                    type="text"
-                    variant="outline"
-                    value={newEvent.thumbnail}
-                    placeholder="Insert thumbnail..."
-                    onChange={handleChange}
-                    backgroundColor="white"
-                    boxShadow="md"
-                  />
+                  <Flex alignItems="center">
+                    <label
+                      htmlFor="thumbnail"
+                      style={{ fontSize: "1.1rem", marginRight: "5px" }}
+                    >
+                      Thumbnail
+                    </label>
+                    <IoImageOutline color="gray.500" />
+                  </Flex>
+                  <UploadWidget onUpload={handleImageUpload} />
+                  {newEvent.thumbnail && (
+                    <Box position="relative" mt={4}>
+                      <Image
+                        src={newEvent.thumbnail}
+                        alt="Preview"
+                        borderRadius="md"
+                      />
+                      <IconButton
+                        aria-label="Remove image"
+                        icon={<CloseIcon />}
+                        onClick={removeImage}
+                        position="absolute"
+                        top="4px"
+                        right="4px"
+                        colorScheme="red"
+                        size="sm"
+                      />
+                    </Box>
+                  )}
                 </Box>
               </Grid>
 
