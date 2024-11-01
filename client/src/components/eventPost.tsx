@@ -144,15 +144,6 @@ const EventPost = () => {
   };
   // console.log(newEvent);
 
-  const [imagePreview, setImagePreview] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleImageChange = () => {};
-
-  const uploadImage = async (e: FormEvent) => {
-    e.preventDefault;
-  };
-
   return (
     <>
       <Box
@@ -182,7 +173,7 @@ const EventPost = () => {
             {newEvent.thumbnail && (
               <Box
                 position="absolute"
-                bottom="10px"
+                top="10px"
                 left="10px"
                 display="flex"
                 alignItems="center"
@@ -193,7 +184,7 @@ const EventPost = () => {
                   }
                   alt="Placeholder"
                   borderRadius="md"
-                  maxHeight="200px"
+                  maxHeight="50px"
                   objectFit="cover"
                   marginRight="10px" // Add some space between the image and the message box
                 />
@@ -202,7 +193,7 @@ const EventPost = () => {
                   borderRadius="md"
                   padding="10px"
                   boxShadow="md"
-                  maxWidth="250px" // You can adjust this width as needed
+                  maxWidth="180px" // You can adjust this width as needed
                 >
                   Great Job! The event looks great!
                 </Box>

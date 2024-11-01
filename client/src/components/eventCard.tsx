@@ -1,6 +1,7 @@
 import { Card, CardBody, Center, Heading, Image, Text } from "@chakra-ui/react";
 import { event } from "../types/event";
-
+import { IoVideocam } from "react-icons/io5";
+import { IoVideocamOff } from "react-icons/io5";
 interface Props {
   event: event;
 }
