@@ -12,6 +12,8 @@ function EventsMy() {
   const { userState } = useUserContext();
   const [userEvents, setUserEvents] = useState<event[]>([]);
   const { eventsState, eventsDispatch } = useEventsContext();
+  const [filteredEvents, setFilteredEvents] = useState<event[]>([]);
+  const [resultsFound, setResultsFound] = useState<boolean>(true);
   axios
     .get("http://127.0.0.1:3000/api/events/myEvents", {
       headers: {
@@ -49,33 +51,55 @@ function EventsMy() {
       console.error("Error deleting event:", err);
     }
   };
+
+  const handleSearchResults = (results: event[]) => {
+    setFilteredEvents(results.length > 0 ? results : []);
+    setResultsFound(results.length > 0);
+  };
+
+  const eventsToDisplay =
+    filteredEvents.length > 0 // Show filtered events if found
+      ? filteredEvents
+      : !resultsFound // If no results found and resultsFound is false
+      ? []
+      : userEvents;
+
   return (
     <Box display="flex" justifyContent="center" width="100%">
       <Box width="90%" maxWidth="1200px">
         {" "}
         {/* Adjust width as needed */}
-        <EventsSearch />
+        <EventsSearch
+          onSearch={handleSearchResults}
+          onResultsFound={setResultsFound}
+        />
         <Heading paddingTop={4}>My Events</Heading>
         <SimpleGrid
           columns={{ sm: 1, md: 2, lg: 2, xl: 3 }} // Adjust columns based on screen size
           padding={10}
           spacing={10}
         >
-          {userEvents.map((event) => (
-            <Box key={event.id} borderWidth={1} borderRadius="lg" padding={4}>
-              <Link to={`/events/${event.id}`}>
-                <EventCard event={event} />
-              </Link>
-              <Stack direction="row" spacing={4} marginTop={2}>
-                <Link to={`/events/edit/${event.id}`}>
-                  <Button>Edit</Button>
+          {eventsToDisplay.length === 0 ? (
+            <Box>No Events Found</Box>
+          ) : (
+            eventsToDisplay.map((event) => (
+              <Box key={event.id} borderWidth={1} borderRadius="lg" padding={4}>
+                <Link to={`/events/${event.id}`}>
+                  <EventCard event={event} />
                 </Link>
-                <Button onClick={() => handleDeleteEvent(event.id.toString())}>
-                  Delete
-                </Button>
-              </Stack>
-            </Box>
-          ))}
+                <Stack direction="row" spacing={4} marginTop={2}>
+                  <Link to={`/events/edit/${event.id}`}>
+                    <Button>Edit</Button>
+                  </Link>
+                  <Button
+                    onClick={() => handleDeleteEvent(event.id.toString())}
+                  >
+                    Delete
+                  </Button>
+                </Stack>
+              </Box>
+            ))
+          )}
         </SimpleGrid>
       </Box>
     </Box>

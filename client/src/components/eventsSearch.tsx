@@ -1,6 +1,5 @@
 import {
   Input,
-  Button,
   Box,
   InputGroup,
   InputLeftElement,
@@ -9,48 +8,48 @@ import {
 } from "@chakra-ui/react";
 import { CalendarIcon, SearchIcon } from "@chakra-ui/icons";
 import { useState } from "react";
-import axios from "axios"; // Import axios for API calls
+import axios from "axios";
+import { event } from "../types/event";
 
-export const EventsSearch = () => {
-  const [searchTitle, setSearchTitle] = useState("");
+export const EventsSearch = ({
+  onSearch,
+  onResultsFound, // New prop for the indicator
+}: {
+  onSearch: (results: event[]) => void;
+  onResultsFound: (found: boolean) => void; // Indicator prop
+}) => {
+  // Individual state variables for each search field
+  const [search, setSearch] = useState("");
+  const [venue, setVenue] = useState("");
   const [city, setCity] = useState("");
-  const [venue, setVenue] = useState(""); // Changed location to venue
-  const [country, setCountry] = useState(""); // Added state for country
+  const [country, setCountry] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const handleSearch = async () => {
-    try {
-      // Construct query parameters
-      const params = new URLSearchParams({
-        search: searchTitle,
-        city,
-        venue,
-        country,
-        startDate,
-        endDate,
-      }).toString();
-
-      // Fetch events from the API
-      const response = await axios.get(`/api/events?${params}`);
-      console.log(response.data); // Process or display the fetched events
-    } catch (error) {
-      console.error("Error fetching events:", error);
-    }
+  // Trigger search on button click
+  const handleSearch = () => {
+    axios
+      .get(
+        `http://localhost:3000/api/events?search=${search}&venue=${venue}&city=${city}&country=${country}&startDate=${startDate}&endDate=${endDate}`
+      )
+      .then((res) => {
+        onSearch(res.data); // Pass results to EventsGrid
+        onResultsFound(res.data.length > 0);
+      })
+      .catch((e) => console.log(e));
   };
 
   return (
     <Box p={4} borderWidth={1} borderRadius="lg" boxShadow="md">
       <HStack spacing={4} align="center" wrap="wrap">
-        {/* Main Search Input */}
         <InputGroup size="sm" maxWidth="200px">
           <InputLeftElement pointerEvents="none">
             <SearchIcon color="gray.500" />
           </InputLeftElement>
           <Input
             placeholder="Search by Title"
-            value={searchTitle}
-            onChange={(e) => setSearchTitle(e.target.value)}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </InputGroup>
         <Input
@@ -58,7 +57,7 @@ export const EventsSearch = () => {
           size="sm"
           maxWidth="150px"
           value={venue}
-          onChange={(e) => setVenue(e.target.value)} // Updated state
+          onChange={(e) => setVenue(e.target.value)}
         />
         <Input
           placeholder="City"
@@ -67,15 +66,13 @@ export const EventsSearch = () => {
           value={city}
           onChange={(e) => setCity(e.target.value)}
         />
-        {/* Country Input */}
         <Input
           placeholder="Country"
           size="sm"
           maxWidth="150px"
-          value={country} // Bound to the country state
-          onChange={(e) => setCountry(e.target.value)} // Updated state
+          value={country}
+          onChange={(e) => setCountry(e.target.value)}
         />
-        {/* Start Date */}
         <InputGroup size="sm" maxWidth="190px">
           <InputLeftElement pointerEvents="none">
             <CalendarIcon color="gray.500" />
@@ -87,7 +84,6 @@ export const EventsSearch = () => {
             onChange={(e) => setStartDate(e.target.value)}
           />
         </InputGroup>
-        {/* End Date */}
         <InputGroup size="sm" maxWidth="190px">
           <InputLeftElement pointerEvents="none">
             <CalendarIcon color="gray.500" />
@@ -99,13 +95,12 @@ export const EventsSearch = () => {
             onChange={(e) => setEndDate(e.target.value)}
           />
         </InputGroup>
-        {/* Small Search Icon Button */}
         <IconButton
           aria-label="Search Events"
           icon={<SearchIcon />}
           colorScheme="teal"
           size="sm"
-          onClick={handleSearch} // Call the handleSearch function on click
+          onClick={handleSearch} // Trigger search on click
         />
       </HStack>
     </Box>
