@@ -24,6 +24,12 @@ function EventsMy() {
     });
 
   const handleDeleteEvent = async (eventId: string) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this event?"
+    );
+    if (!confirmed) {
+      return;
+    }
     try {
       // Make sure the URL is correct based on your Express setup
       await axios.delete(`http://127.0.0.1:3000/api/events/${eventId}`, {
