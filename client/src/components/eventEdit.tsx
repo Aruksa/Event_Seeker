@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useCategoriesContext } from "../contexts/categoriesContext";
 import { useEventsContext } from "../contexts/eventsContext";
 import { useUserContext } from "../contexts/userContext";
@@ -46,6 +46,39 @@ const EventEdit = () => {
     startDate: "",
     endDate: "",
   });
+
+  const [event, setEvent] = useState();
+  const [error, setError] = useState("");
+  useEffect(() => {
+    axios
+      .get(`http://localhost:3000/api/events/${params.id}`)
+      .then((res) => {
+        const eventData = res.data.event;
+        setEvent(eventData);
+        setNewEvent(eventData);
+        console.log(eventData);
+        if (eventData) {
+          // Ensure that the date formats are correct
+          const formattedStartDate = new Date(eventData.startDate)
+            .toISOString()
+            .slice(0, 16);
+          const formattedEndDate = new Date(eventData.endDate)
+            .toISOString()
+            .slice(0, 16);
+
+          setNewEvent({
+            ...eventData,
+            startDate: formattedStartDate, // format startDate
+            endDate: formattedEndDate, // format endDate
+          });
+        }
+      })
+
+      .catch((error: any) => {
+        console.error(error);
+        setError("Failed to load event data");
+      });
+  }, []);
 
   const countryOptions = useMemo(() => countryList().getData(), []);
 
@@ -160,7 +193,7 @@ const EventEdit = () => {
               height="100%"
               // maxHeight="100vh"
             />
-            {newEvent.thumbnail && (
+            {/* {newEvent.thumbnail && (
               <Box
                 position="absolute"
                 bottom="10px"
@@ -188,7 +221,7 @@ const EventEdit = () => {
                   Great Job! The event looks great!
                 </Box>
               </Box>
-            )}
+            )} */}
           </Box>
           <Box marginLeft={{ base: "0", md: "50px" }}>
             <form onSubmit={handleUpdateEvent}>
