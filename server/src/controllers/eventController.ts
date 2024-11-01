@@ -105,6 +105,7 @@ export const getEvents = async (req: Request, res: Response) => {
     const search = req.query.search as string;
     const city = req.query.city as string;
     const country = req.query.country as string;
+    const venue = req.query.venue as string;
     const startDate = req.query.startDate as string;
     const endDate = req.query.endDate as string;
 
@@ -112,6 +113,9 @@ export const getEvents = async (req: Request, res: Response) => {
 
     if (search) {
       whereClause.title = { [Op.iLike]: `%${search}%` };
+    }
+    if (country) {
+      whereClause.venue = { [Op.iLike]: `%${venue}%` };
     }
     if (city) {
       whereClause.city = { [Op.iLike]: `%${city}%` };
@@ -146,7 +150,11 @@ export const getEvents = async (req: Request, res: Response) => {
         "endDate",
         // [fn("AVG", col("attendances.attendance_type")), "avg_attendance"],
         [
-          fn("COALESCE", fn("AVG", col("attendances.attendance_type")), 0),
+          fn(
+            "COALESCE",
+            fn("ROUND", fn("AVG", col("attendances.attendance_type")), 2),
+            0
+          ),
           "avg_attendance",
         ],
       ],

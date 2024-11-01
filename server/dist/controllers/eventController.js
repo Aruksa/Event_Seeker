@@ -89,11 +89,15 @@ const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const search = req.query.search;
         const city = req.query.city;
         const country = req.query.country;
+        const venue = req.query.venue;
         const startDate = req.query.startDate;
         const endDate = req.query.endDate;
         const whereClause = {};
         if (search) {
             whereClause.title = { [sequelize_1.Op.iLike]: `%${search}%` };
+        }
+        if (country) {
+            whereClause.venue = { [sequelize_1.Op.iLike]: `%${venue}%` };
         }
         if (city) {
             whereClause.city = { [sequelize_1.Op.iLike]: `%${city}%` };
@@ -128,7 +132,7 @@ const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 "endDate",
                 // [fn("AVG", col("attendances.attendance_type")), "avg_attendance"],
                 [
-                    (0, sequelize_1.fn)("COALESCE", (0, sequelize_1.fn)("AVG", (0, sequelize_1.col)("attendances.attendance_type")), 0),
+                    (0, sequelize_1.fn)("COALESCE", (0, sequelize_1.fn)("ROUND", (0, sequelize_1.fn)("AVG", (0, sequelize_1.col)("attendances.attendance_type")), 2), 0),
                     "avg_attendance",
                 ],
             ],

@@ -20,6 +20,7 @@ import {
   Textarea,
   IconButton,
   Flex,
+  Heading,
 } from "@chakra-ui/react";
 import { CloseIcon } from "@chakra-ui/icons";
 import { category } from "../types/category";
@@ -170,13 +171,13 @@ const EventPost = () => {
         >
           <Box flex="1" position="relative">
             <Image
-              src="https://images.unsplash.com/photo-1485872299829-c673f5194813?q=80&w=2054&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              src="https://images.unsplash.com/photo-1607653150149-526b2744ca60?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               alt="Event Image"
               objectFit="cover"
               borderRadius="0"
               width="100%"
               height="100%"
-              maxHeight="100vh"
+              // maxHeight="100vh"
             />
             {newEvent.thumbnail && (
               <Box
@@ -217,6 +218,7 @@ const EventPost = () => {
                     <AlertTitle>{errorMessage}</AlertTitle>
                   </Alert>
                 )}
+                <Heading>Create a New Event</Heading>
 
                 <label htmlFor="title" style={{ fontSize: "1.1rem" }}>
                   Title
@@ -313,7 +315,9 @@ const EventPost = () => {
                         <Image
                           src={newEvent.thumbnail}
                           alt="Preview"
-                          borderRadius="md"
+                          width="100px" // Ensure it takes the full width of the container
+                          height="100px" // Ensure it takes the full height of the container
+                          objectFit="cover"
                         />
                         <IconButton
                           aria-label="Remove image"

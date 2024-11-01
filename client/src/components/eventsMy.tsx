@@ -1,4 +1,4 @@
-import { SimpleGrid, Box, Heading } from "@chakra-ui/react";
+import { SimpleGrid, Box, Heading, Button, Stack } from "@chakra-ui/react";
 import { useEventsContext } from "../contexts/eventsContext";
 import { EventsSearch } from "./eventsSearch";
 import { Link } from "react-router-dom";
@@ -34,9 +34,15 @@ function EventsMy() {
           spacing={10}
         >
           {userEvents.map((event) => (
-            <Link key={event.id} to={`/events/${event.id}`}>
-              <EventCard event={event} />
-            </Link>
+            <Box key={event.id} borderWidth={1} borderRadius="lg" padding={4}>
+              <Link to={`/events/${event.id}`}>
+                <EventCard event={event} />
+              </Link>
+              <Stack direction="row" spacing={4} marginTop={2}>
+                <Button>Edit</Button>
+                <Button>Delete</Button>
+              </Stack>
+            </Box>
           ))}
         </SimpleGrid>
       </Box>
