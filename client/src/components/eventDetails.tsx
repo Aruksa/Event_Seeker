@@ -334,7 +334,7 @@ function EventDetails() {
               </Box>
             </Stack>
           </Stack>
-          <Box mt={10}>
+          {/* <Box mt={10}>
             <Text
               fontSize={{ base: "16px", lg: "18px" }}
               fontWeight="500"
@@ -368,7 +368,7 @@ function EventDetails() {
                 No attendee reviews available
               </Text>
             )}
-          </Box>
+          </Box> */}
         </SimpleGrid>
       </Container>
     </>
