@@ -4,7 +4,7 @@ import { EventsSearch } from "./eventsSearch";
 import { Link } from "react-router-dom";
 import EventCard from "./eventCard";
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { event } from "../types/event";
 import { useUserContext } from "../contexts/userContext";
 
@@ -14,16 +14,19 @@ function EventsMy() {
   const { eventsState, eventsDispatch } = useEventsContext();
   const [filteredEvents, setFilteredEvents] = useState<event[]>([]);
   const [resultsFound, setResultsFound] = useState<boolean>(true);
-  axios
-    .get("http://127.0.0.1:3000/api/events/myEvents", {
-      headers: {
-        "x-auth-token": userState.token,
-      },
-    })
-    .then((res) => setUserEvents(res.data))
-    .catch((err) => {
-      console.log(err);
-    });
+
+  useEffect(() => {
+    axios
+      .get("http://127.0.0.1:3000/api/events/myEvents", {
+        headers: {
+          "x-auth-token": userState.token,
+        },
+      })
+      .then((res) => setUserEvents(res.data))
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   const handleDeleteEvent = async (eventId: string) => {
     const confirmed = window.confirm(

@@ -42,12 +42,17 @@ const getScore = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         let score = yield attendanceModel.findOne({
             where: { userId: user.id, eventId: eventId },
         });
-        if (!score)
-            return res.status(404).send("This user has not voted for this event.");
-        res.status(200).json(score);
+        if (!score) {
+            return res.status(200).json({
+                eventId: eventId,
+            });
+        }
+        res
+            .status(200)
+            .json(_.pick(score, ["eventId", "attendance_type", "review"]));
     }
     catch (error) {
-        res.status(400).send(error);
+        res.status(404).send(error);
     }
 });
 exports.getScore = getScore;

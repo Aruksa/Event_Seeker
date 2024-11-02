@@ -34,14 +34,18 @@ export const getScore = async (req: Request, res: Response) => {
     let score = await attendanceModel.findOne({
       where: { userId: user.id, eventId: eventId },
     });
-    if (!score)
-      return res.status(404).send("This user has not voted for this event.");
-    res.status(200).json(score);
+    if (!score) {
+      return res.status(200).json({
+        eventId: eventId,
+      });
+    }
+    res
+      .status(200)
+      .json(_.pick(score, ["eventId", "attendance_type", "review"]));
   } catch (error) {
-    res.status(400).send(error);
+    res.status(404).send(error);
   }
 };
-
 export const updateScore = async (req: Request, res: Response) => {
   try {
     const user = req.user;
