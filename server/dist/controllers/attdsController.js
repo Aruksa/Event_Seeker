@@ -67,8 +67,10 @@ const updateScore = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             return res.status(404).send("Score not found");
         }
         const updatedScore = yield score.update({
-            attendance_type: req.body.attendance_type || score.attendance_type,
-            review: req.body.review || score.review,
+            attendance_type: req.body.attendance_type !== undefined
+                ? req.body.attendance_type
+                : score.attendance_type,
+            review: req.body.review !== undefined ? req.body.review : score.review,
         });
         res.status(200).json(updatedScore);
     }

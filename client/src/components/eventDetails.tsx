@@ -104,7 +104,7 @@ function EventDetails() {
         }
       } catch (error) {
         console.error(error);
-        setError("Failed to load event data");
+        // setError("Failed to load event data");
       } finally {
         setLoading(false);
       }
@@ -136,6 +136,7 @@ function EventDetails() {
       setUserEventScore(response.data); // Update local user score state based on response
       // Optionally update the event data if it changes
       // setEvent((prevEvent) => ({ ...prevEvent, going: response.data.going }));
+      // console.log("USER EVENT SCORE",response.data);
     } catch (error) {
       console.error("Failed to update score", error);
       setError("Failed to update score. Please try again.");

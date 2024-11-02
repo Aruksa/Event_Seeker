@@ -60,8 +60,11 @@ export const updateScore = async (req: Request, res: Response) => {
     }
 
     const updatedScore: any = await score.update({
-      attendance_type: req.body.attendance_type || score.attendance_type,
-      review: req.body.review || score.review,
+      attendance_type:
+        req.body.attendance_type !== undefined
+          ? req.body.attendance_type
+          : score.attendance_type,
+      review: req.body.review !== undefined ? req.body.review : score.review,
     });
 
     res.status(200).json(updatedScore);
