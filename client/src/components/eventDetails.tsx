@@ -96,7 +96,7 @@ function EventDetails() {
           }
         );
 
-        setUserEventScore(userScoreResponse.data);
+        // setUserEventScore(userScoreResponse.data);
         if (userScoreResponse.data?.attendance_type === undefined) {
           setFirstScore(true);
         } else {
@@ -111,7 +111,7 @@ function EventDetails() {
     };
 
     fetchEventData();
-  }, [userState.token]);
+  }, [userState.token, userEventScore]);
 
   const handleScoreSubmit = async (scoreType: string) => {
     setLoading(true);
@@ -186,7 +186,8 @@ function EventDetails() {
             />
           </Flex>
           <Stack
-          // spacing={{ base: 6, md: 10 }}
+            align="start"
+            // spacing={{ base: 6, md: 10 }}
           >
             <Box as={"header"}>
               <Heading
@@ -209,18 +210,19 @@ function EventDetails() {
                   {event?.event.country}
                 </Text>
               </Flex>
-              <Box bg="white" p={6} borderRadius="xl" boxShadow="sm">
+              <Box bg="white" paddingTop={3} borderRadius="xl" boxShadow="sm">
                 <Flex
                   gap={4}
                   direction={{ base: "column", sm: "row" }}
-                  alignItems="center"
+                  // alignItems="center"
                   justifyContent="flex-start" // Align items to the left
                   width="100%"
                 >
                   <Button
                     onClick={() => handleScoreSubmit("going")}
                     isLoading={loading}
-                    p={2}
+                    minWidth="120px"
+                    // p={2}
                     fontSize="sm"
                     border="1px solid"
                     borderColor="green.600"
@@ -243,7 +245,8 @@ function EventDetails() {
                   <Button
                     onClick={() => handleScoreSubmit("not_interested")}
                     isLoading={loading}
-                    p={2}
+                    minWidth="120px"
+                    // p={2}
                     fontSize="sm"
                     border="1px solid"
                     borderColor="red.600"
@@ -266,7 +269,8 @@ function EventDetails() {
                   <Button
                     onClick={() => handleScoreSubmit("interested")}
                     isLoading={loading}
-                    p={2}
+                    minWidth="120px"
+                    // p={2}
                     fontSize="sm"
                     border="1px solid"
                     borderColor="blue.600"
