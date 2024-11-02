@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { FaThumbsUp, FaThumbsDown, FaStar } from "react-icons/fa";
 
@@ -81,6 +81,8 @@ function EventDetails() {
 
   const [firstScore, setFirstScore] = useState(false);
 
+  const userEventScoreRef = useRef<userEventScore | undefined>(undefined);
+
   useEffect(() => {
     const fetchEventData = async () => {
       setLoading(true);
@@ -98,6 +100,9 @@ function EventDetails() {
         );
 
         // setUserEventScore(userScoreResponse.data);
+        userEventScoreRef.current = userScoreResponse.data;
+        console.log("VALUE", userEventScoreRef.current);
+
         if (userScoreResponse.data?.attendance_type === undefined) {
           setFirstScore(true);
         } else {
@@ -157,8 +162,12 @@ function EventDetails() {
     }).format(date);
   };
 
-  const isUserVoted = (type: number) =>
-    userEventScore?.attendance_type === type;
+  const isUserVoted = (type: number) => {
+    if (userEventScoreRef.current?.attendance_type === type) {
+      return true;
+    }
+    return userEventScore?.attendance_type === type;
+  };
   return (
     <>
       {error && (
