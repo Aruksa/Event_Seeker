@@ -260,6 +260,13 @@ export const getEvent = async (req: Request, res: Response) => {
       not_interested,
       interested,
       going,
+      avg_attendance: parseFloat(
+        (
+          (5 * going + 3 * interested) /
+          (not_interested + interested + going)
+        ).toFixed(2)
+      ),
+
       // attendees: event.dataValues.attendees,
     });
   } catch (error) {

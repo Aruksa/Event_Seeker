@@ -231,6 +231,8 @@ const getEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             not_interested,
             interested,
             going,
+            avg_attendance: parseFloat(((5 * going + 3 * interested) /
+                (not_interested + interested + going)).toFixed(2)),
             // attendees: event.dataValues.attendees,
         });
     }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { FaThumbsUp, FaThumbsDown, FaStar } from "react-icons/fa";
 
-import { FaRegThumbsUp, FaRegThumbsDown, FaRegStar } from "react-icons/fa";
 import {
   Box,
   Container,
@@ -21,8 +21,8 @@ import {
   Badge,
   Wrap,
   WrapItem,
-  Button,
-  ButtonGroup,
+  IconButton,
+  HStack,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { CiLocationOn } from "react-icons/ci";
@@ -38,6 +38,7 @@ interface attendees {
 }
 
 export interface singleEvent {
+  avg_attendance: number;
   event: {
     id: number;
     title: string;
@@ -133,10 +134,7 @@ function EventDetails() {
         headers: { "x-auth-token": userState.token },
       });
 
-      setUserEventScore(response.data); // Update local user score state based on response
-      // Optionally update the event data if it changes
-      // setEvent((prevEvent) => ({ ...prevEvent, going: response.data.going }));
-      // console.log("USER EVENT SCORE",response.data);
+      setUserEventScore(response.data);
     } catch (error) {
       console.error("Failed to update score", error);
       setError("Failed to update score. Please try again.");
@@ -145,8 +143,7 @@ function EventDetails() {
     }
   };
 
-  console.log(event);
-  // console.log(categories);
+  // console.log(event);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -160,6 +157,8 @@ function EventDetails() {
     }).format(date);
   };
 
+  const isUserVoted = (type: number) =>
+    userEventScore?.attendance_type === type;
   return (
     <>
       {error && (
@@ -178,7 +177,7 @@ function EventDetails() {
             <Image
               rounded={"md"}
               alt={"event image"}
-              src={event?.event.thumbnail} // Assumes event thumbnail image is available
+              src={event?.event.thumbnail}
               fit={"cover"}
               align={"center"}
               w={"100%"}
@@ -210,85 +209,66 @@ function EventDetails() {
                   {event?.event.country}
                 </Text>
               </Flex>
+              <Box
+                display="flex"
+                alignItems="center"
+                borderRadius="md"
+                maxWidth="150px"
+                paddingTop={3}
+                paddingLeft={1}
+              >
+                <Text fontSize="lg" color="gray.600" mr={1}>
+                  Rating:
+                </Text>
+                <Text fontWeight="bold" fontSize="lg" color="blue.800">
+                  {event?.avg_attendance
+                    ? `${event.avg_attendance}/5`
+                    : "No rating"}
+                </Text>
+              </Box>
               <Box bg="white" paddingTop={3} borderRadius="xl" boxShadow="sm">
                 <Flex
                   gap={4}
                   direction={{ base: "column", sm: "row" }}
                   // alignItems="center"
-                  justifyContent="flex-start" // Align items to the left
+                  justifyContent="flex-start"
                   width="100%"
                 >
-                  <Button
-                    onClick={() => handleScoreSubmit("going")}
-                    isLoading={loading}
-                    minWidth="120px"
-                    // p={2}
-                    fontSize="sm"
-                    border="1px solid"
-                    borderColor="green.600"
-                    color="green.600"
-                    bg="gray.50"
-                    _hover={{
-                      bg: "green.600",
-                      color: "white",
-                      transform: "translateY(-2px)",
-                    }}
-                    transition="all 0.2s"
-                    leftIcon={<FaRegThumbsUp />} // Thumbs up icon
-                  >
+                  <HStack spacing={2} align="center">
+                    <IconButton
+                      aria-label="Going"
+                      icon={<FaThumbsUp />}
+                      onClick={() => handleScoreSubmit("going")}
+                      isLoading={loading}
+                      colorScheme={isUserVoted(5) ? "green" : "gray"}
+                      variant={isUserVoted(5) ? "solid" : "outline"}
+                    />
                     <Text fontWeight="semibold">{event?.going}</Text>
-                    <Text fontSize="xs" fontWeight="medium" ml={1}>
-                      Going
-                    </Text>
-                  </Button>
+                  </HStack>
 
-                  <Button
-                    onClick={() => handleScoreSubmit("not_interested")}
-                    isLoading={loading}
-                    minWidth="120px"
-                    // p={2}
-                    fontSize="sm"
-                    border="1px solid"
-                    borderColor="red.600"
-                    color="red.600"
-                    bg="gray.50"
-                    _hover={{
-                      bg: "red.600",
-                      color: "white",
-                      transform: "translateY(-2px)",
-                    }}
-                    transition="all 0.2s"
-                    leftIcon={<FaRegThumbsDown />} // Thumbs down icon
-                  >
+                  <HStack spacing={2} align="center">
+                    <IconButton
+                      aria-label="Not Going"
+                      icon={<FaThumbsDown />}
+                      onClick={() => handleScoreSubmit("not_interested")}
+                      isLoading={loading}
+                      colorScheme={isUserVoted(0) ? "red" : "gray"}
+                      variant={isUserVoted(0) ? "solid" : "outline"}
+                    />
                     <Text fontWeight="semibold">{event?.not_interested}</Text>
-                    <Text fontSize="xs" fontWeight="medium" ml={1}>
-                      Not Going
-                    </Text>
-                  </Button>
+                  </HStack>
 
-                  <Button
-                    onClick={() => handleScoreSubmit("interested")}
-                    isLoading={loading}
-                    minWidth="120px"
-                    // p={2}
-                    fontSize="sm"
-                    border="1px solid"
-                    borderColor="blue.600"
-                    color="blue.600"
-                    bg="gray.50"
-                    _hover={{
-                      bg: "blue.600",
-                      color: "white",
-                      transform: "translateY(-2px)",
-                    }}
-                    transition="all 0.2s"
-                    leftIcon={<FaRegStar />} // Star icon for Interested
-                  >
+                  <HStack spacing={2} align="center">
+                    <IconButton
+                      aria-label="Interested"
+                      icon={<FaStar />}
+                      onClick={() => handleScoreSubmit("interested")}
+                      isLoading={loading}
+                      colorScheme={isUserVoted(3) ? "blue" : "gray"}
+                      variant={isUserVoted(3) ? "solid" : "outline"}
+                    />
                     <Text fontWeight="semibold">{event?.interested}</Text>
-                    <Text fontSize="xs" fontWeight="medium" ml={1}>
-                      Interested
-                    </Text>
-                  </Button>
+                  </HStack>
                 </Flex>
               </Box>
             </Box>
