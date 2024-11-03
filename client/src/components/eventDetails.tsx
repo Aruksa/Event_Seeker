@@ -230,7 +230,8 @@ function EventDetails() {
                   Rating:
                 </Text>
                 <Text fontWeight="bold" fontSize="lg" color="blue.800">
-                  {event?.avg_attendance
+                  {event?.avg_attendance !== undefined &&
+                  event.avg_attendance !== null
                     ? `${event.avg_attendance}/5`
                     : "No rating"}
                 </Text>

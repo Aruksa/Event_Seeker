@@ -120,13 +120,13 @@ const App = () => {
               )}
 
               {/* "No More Events" message when noMoreEvents is true */}
-              {!loading && noMoreEvents && (
+              {/* {!loading && noMoreEvents && (
                 <Center mt={4}>
                   <Text fontSize="lg" color="gray.500">
                     No more events to show!
                   </Text>
                 </Center>
-              )}
+              )} */}
             </GridItem>
           </Grid>
         </CategoriesContext.Provider>
