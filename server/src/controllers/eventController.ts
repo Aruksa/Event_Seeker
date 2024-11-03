@@ -114,7 +114,7 @@ export const getEvents = async (req: Request, res: Response) => {
     if (search) {
       whereClause.title = { [Op.iLike]: `%${search}%` };
     }
-    if (country) {
+    if (venue) {
       whereClause.venue = { [Op.iLike]: `%${venue}%` };
     }
     if (city) {

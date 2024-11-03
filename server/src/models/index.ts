@@ -24,7 +24,7 @@ const config = {
 };
 
 const sequelize = new Sequelize(
-  "event_seeker2",
+  "event_seeker3",
   "postgres",
   "qwertyuiop",
   config

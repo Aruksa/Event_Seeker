@@ -97,7 +97,7 @@ const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         if (search) {
             whereClause.title = { [sequelize_2.Op.iLike]: `%${search}%` };
         }
-        if (country) {
+        if (venue) {
             whereClause.venue = { [sequelize_2.Op.iLike]: `%${venue}%` };
         }
         if (city) {

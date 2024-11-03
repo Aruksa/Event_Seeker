@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@faker-js/faker": "^9.1.0",
+    "axios": "^1.7.7",
+    "react-select-country-list": "^2.2.3"
+  }
+}

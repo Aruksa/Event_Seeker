@@ -14,6 +14,7 @@ function EventsMy() {
   const { eventsState, eventsDispatch } = useEventsContext();
   const [filteredEvents, setFilteredEvents] = useState<event[]>([]);
   const [resultsFound, setResultsFound] = useState<boolean>(true);
+  const [searchActive, setSearchActive] = useState<boolean>(false); // New state to track search activity
 
   useEffect(() => {
     axios
@@ -56,16 +57,15 @@ function EventsMy() {
   };
 
   const handleSearchResults = (results: event[]) => {
-    setFilteredEvents(results.length > 0 ? results : []);
+    setFilteredEvents(results);
     setResultsFound(results.length > 0);
+    setSearchActive(results.length > 0 || results.length === 0); // Set search active if results exist or are empty
   };
 
   const eventsToDisplay =
-    filteredEvents.length > 0 // Show filtered events if found
+    searchActive && filteredEvents.length > 0 // Show filtered events if search is active
       ? filteredEvents
-      : !resultsFound // If no results found and resultsFound is false
-      ? []
-      : userEvents;
+      : eventsState.events; // Otherwise, show all events
 
   return (
     <Box display="flex" justifyContent="center" width="100%">
