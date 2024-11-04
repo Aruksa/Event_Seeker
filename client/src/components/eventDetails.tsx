@@ -25,6 +25,7 @@ import {
   IconButton,
   HStack,
   Icon,
+  Tooltip,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { CiLocationOn } from "react-icons/ci";
@@ -245,38 +246,56 @@ function EventDetails() {
                   width="100%"
                 >
                   <HStack spacing={2} align="center">
-                    <IconButton
-                      aria-label="Going"
-                      icon={<FaThumbsUp />}
-                      onClick={() => handleScoreSubmit("going")}
-                      isLoading={loading}
-                      colorScheme={isUserVoted(5) ? "green" : "gray"}
-                      variant={isUserVoted(5) ? "solid" : "outline"}
-                    />
+                    <Tooltip
+                      label="Going"
+                      aria-label="Going tooltip"
+                      placement="top"
+                    >
+                      <IconButton
+                        aria-label="Going"
+                        icon={<FaThumbsUp />}
+                        onClick={() => handleScoreSubmit("going")}
+                        isLoading={loading}
+                        colorScheme={isUserVoted(5) ? "green" : "gray"}
+                        variant={isUserVoted(5) ? "solid" : "outline"}
+                      />
+                    </Tooltip>
                     <Text fontWeight="semibold">{event?.going}</Text>
                   </HStack>
 
                   <HStack spacing={2} align="center">
-                    <IconButton
-                      aria-label="Not Going"
-                      icon={<FaThumbsDown />}
-                      onClick={() => handleScoreSubmit("not_interested")}
-                      isLoading={loading}
-                      colorScheme={isUserVoted(1) ? "red" : "gray"}
-                      variant={isUserVoted(1) ? "solid" : "outline"}
-                    />
+                    <Tooltip
+                      label="Not Going"
+                      aria-label="Not Going tooltip"
+                      placement="top"
+                    >
+                      <IconButton
+                        aria-label="Not Going"
+                        icon={<FaThumbsDown />}
+                        onClick={() => handleScoreSubmit("not_interested")}
+                        isLoading={loading}
+                        colorScheme={isUserVoted(1) ? "red" : "gray"}
+                        variant={isUserVoted(1) ? "solid" : "outline"}
+                      />
+                    </Tooltip>
                     <Text fontWeight="semibold">{event?.not_interested}</Text>
                   </HStack>
 
                   <HStack spacing={2} align="center">
-                    <IconButton
-                      aria-label="Interested"
-                      icon={<FaHeart />}
-                      onClick={() => handleScoreSubmit("interested")}
-                      isLoading={loading}
-                      colorScheme={isUserVoted(3) ? "blue" : "gray"}
-                      variant={isUserVoted(3) ? "solid" : "outline"}
-                    />
+                    <Tooltip
+                      label="Interested"
+                      aria-label="Interested tooltip"
+                      placement="top"
+                    >
+                      <IconButton
+                        aria-label="Interested"
+                        icon={<FaHeart />}
+                        onClick={() => handleScoreSubmit("interested")}
+                        isLoading={loading}
+                        colorScheme={isUserVoted(3) ? "blue" : "gray"}
+                        variant={isUserVoted(3) ? "solid" : "outline"}
+                      />
+                    </Tooltip>
                     <Text fontWeight="semibold">{event?.interested}</Text>
                   </HStack>
                 </Flex>

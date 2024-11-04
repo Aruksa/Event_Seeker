@@ -12,6 +12,7 @@ const NavBar = () => {
   const handleLogout = async () => {
     userDispatch({ type: "logout", payload: "" });
     await cookies.remove("token");
+    localStorage.removeItem("token");
     navigate("/");
   };
 

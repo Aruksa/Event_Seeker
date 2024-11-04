@@ -11,7 +11,7 @@ const PostProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   const isAuthenticated = !!token;
 
-  // If a user token exists, redirect to the home page
+  // If a user token does not exist, redirect to the home page
   return isAuthenticated ? children : <Navigate to="/" replace />;
 };
 

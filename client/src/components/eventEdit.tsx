@@ -50,6 +50,9 @@ const EventEdit = () => {
   const [event, setEvent] = useState();
   const [error, setError] = useState("");
   useEffect(() => {
+    if (!userState.token) {
+      navigate("/"); // Redirect to login if not authenticated
+    }
     axios
       .get(`http://localhost:3000/api/events/${params.id}`)
       .then((res) => {
@@ -78,7 +81,7 @@ const EventEdit = () => {
         console.error(error);
         setError("Failed to load event data");
       });
-  }, []);
+  }, [userState.token]);
 
   const countryOptions = useMemo(() => countryList().getData(), []);
 

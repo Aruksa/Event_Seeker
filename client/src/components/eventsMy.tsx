@@ -13,6 +13,11 @@ import {
   Input,
   Stack,
   Button,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import EventCard from "./eventCard";
@@ -20,6 +25,7 @@ import { event } from "../types/event";
 import { CalendarIcon, SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
 import { useUserContext } from "../contexts/userContext";
+import { FaEdit, FaEllipsisV, FaTrash } from "react-icons/fa";
 
 function EventsMy() {
   const { userState } = useUserContext();
@@ -266,20 +272,45 @@ function EventsMy() {
               spacing={10}
             >
               {myEvents.map((event) => (
-                <Box>
+                <Box position="relative" key={event.id}>
+                  {/* Link to the event details */}
                   <Link to={`/events/${event.id}`}>
                     <EventCard event={event} />
                   </Link>
-                  <Stack direction="row" spacing={4} marginTop={2}>
-                    <Link to={`/events/edit/${event.id}`}>
-                      <Button>Edit</Button>
-                    </Link>
-                    <Button
-                      onClick={() => handleDeleteEvent(event.id.toString())}
-                    >
-                      Delete
-                    </Button>
-                  </Stack>
+
+                  {/* Three-dot menu in the top right */}
+                  <Box position="absolute" top="8px" right="8px">
+                    <Menu>
+                      <MenuButton
+                        as={IconButton}
+                        icon={<FaEllipsisV />}
+                        aria-label="Options"
+                        variant="outline"
+                        size="sm"
+                        bg="rgba(0, 0, 0, 0.6)"
+                        color="white"
+                        borderRadius="md" // Rounded edges for rectangle shape
+                        _hover={{ bg: "rgba(0, 0, 0, 0.8)" }}
+                        boxShadow="0px 0px 8px rgba(0, 0, 0, 0.3)"
+                      />
+                      <MenuList>
+                        <MenuItem as={Link} to={`/events/edit/${event.id}`}>
+                          <HStack spacing={2}>
+                            <FaEdit />
+                            <span>Edit</span>
+                          </HStack>
+                        </MenuItem>
+                        <MenuItem
+                          onClick={() => handleDeleteEvent(event.id.toString())}
+                        >
+                          <HStack spacing={2}>
+                            <FaTrash />
+                            <span>Delete</span>
+                          </HStack>
+                        </MenuItem>
+                      </MenuList>
+                    </Menu>
+                  </Box>
                 </Box>
               ))}
             </SimpleGrid>
