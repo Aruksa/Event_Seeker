@@ -1,14 +1,22 @@
-import { Card, CardBody, Center, Heading, Image, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Card,
+  CardBody,
+  Center,
+  Heading,
+  Image,
+  Spinner,
+  Text,
+} from "@chakra-ui/react";
 import { event } from "../types/event";
-import { IoVideocam } from "react-icons/io5";
-import { IoVideocamOff } from "react-icons/io5";
+
+import { useState } from "react";
 interface Props {
   event: event;
 }
 
 function EventCard({ event }: Props) {
-  // console.log(event);
-
+  const [loading, setLoading] = useState(true);
   return (
     <Card
       overflow="hidden"
@@ -18,8 +26,19 @@ function EventCard({ event }: Props) {
       border="none"
       boxShadow="none"
     >
-      {" "}
-      {/* Added fixed height */}
+      {loading && (
+        <Box
+          position="absolute"
+          top="50%"
+          left="50%"
+          transform="translate(-50%, -50%)"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Spinner />
+        </Box>
+      )}
       <Image
         src={event.thumbnail}
         width="100%" // Set width to fill the card
@@ -27,6 +46,9 @@ function EventCard({ event }: Props) {
         objectFit="cover" // Maintain aspect ratio while filling the space
         alt={event.title}
         borderRadius="10px 10px 10px 10px" // Rounded top corners only
+        onLoad={() => setLoading(false)}
+        onError={() => setLoading(false)}
+        display={loading ? "none" : "block"}
       />
       <CardBody>
         <Heading fontSize="lg">{event.title}</Heading>

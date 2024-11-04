@@ -19,7 +19,7 @@ import { CalendarIcon, SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
 
 function EventsGrid() {
-  const { eventsState, eventsDispatch, loading } = useEventsContext();
+  const { eventsState, eventsDispatch } = useEventsContext();
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
 
@@ -42,6 +42,8 @@ function EventsGrid() {
 
   const events = eventsState.events;
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     hasMoreRef.current = hasMore;
   }, [hasMore]);
@@ -49,12 +51,14 @@ function EventsGrid() {
   useEffect(() => {
     const handleSearch = async () => {
       try {
+        setLoading(true);
         setPage(1);
         setHasMore(true); // Reset hasMore on a new search
         const result = await axios.get<event[]>(
           `http://localhost:3000/api/events?search=${input.search}&venue=${input.venue}&city=${input.city}&country=${input.country}&startDate=${input.startDate}&endDate=${input.endDate}&page=1`
         );
         eventsDispatch({ type: "getEvents", payload: result.data });
+        setLoading(false);
         if (result.data.length === 0) {
           console.log("End of results reached."); // Debugging line
           setHasMore(false); // Set to false when no more data is available
@@ -115,13 +119,16 @@ function EventsGrid() {
     const getEvents = async () => {
       if (!hasMoreRef.current) return; // Early exit if no more pages
       try {
+        setLoading(true);
         const result = await axios.get<event[]>(
           `http://localhost:3000/api/events?search=${input.search}&venue=${input.venue}&city=${input.city}&country=${input.country}&startDate=${input.startDate}&endDate=${input.endDate}&page=${page}`
         );
 
         if (result.data.length === 0) {
+          setLoading(false);
           setHasMore(false); // No more pages to fetch
         } else {
+          setLoading(false);
           const uniqueEvents = [
             ...eventsState.events,
             ...result.data.filter(
@@ -207,7 +214,7 @@ function EventsGrid() {
         <Box width="90%" maxWidth="1200px">
           {" "}
           {/* Adjust width as needed */}
-          <Heading paddingTop={4} paddingLeft={7}>
+          <Heading paddingTop={4} paddingLeft={8}>
             Discover Event Listings
           </Heading>
           {loading ? ( // Show loader while fetching data
