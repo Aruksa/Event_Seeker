@@ -33,6 +33,8 @@ const EventPost = () => {
   const { categories } = useCategoriesContext();
   const { eventsState, eventsDispatch } = useEventsContext();
 
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const [newEvent, setNewEvent] = useState({
     title: "",
     venue: "",
@@ -134,6 +136,7 @@ const EventPost = () => {
       ...newEvent,
       categories: selectedOptions.map((item: any) => item.value) || [],
     }); // Update categories in newEvent
+    setIsMenuOpen(true); // Keep the menu open
   };
 
   const handleModeChange = (selectedOption: any) => {
@@ -357,6 +360,9 @@ const EventPost = () => {
                   isMulti
                   options={categoryOptions}
                   onChange={handleCategoryChange}
+                  onFocus={() => setIsMenuOpen(true)} // Open the menu on focus
+                  onBlur={() => setIsMenuOpen(false)} // Close the menu when focus is lost
+                  menuIsOpen={isMenuOpen} // Control the visibility of the menu
                   placeholder="Select Categories"
                   styles={{
                     control: (base) => ({

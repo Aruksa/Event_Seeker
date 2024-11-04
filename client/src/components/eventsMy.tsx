@@ -11,6 +11,8 @@ import {
   InputGroup,
   InputLeftElement,
   Input,
+  Stack,
+  Button,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import EventCard from "./eventCard";
@@ -21,6 +23,7 @@ import { useUserContext } from "../contexts/userContext";
 
 function EventsMy() {
   const { userState } = useUserContext();
+  const { eventsDispatch } = useEventsContext();
   const [myEvents, setMyEvents] = useState<event[]>([]);
 
   const [error, setError] = useState("");
@@ -39,6 +42,33 @@ function EventsMy() {
     startDate: "",
     endDate: "",
   });
+
+  const handleDeleteEvent = async (eventId: string) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this event?"
+    );
+    if (!confirmed) {
+      return;
+    }
+    try {
+      // Make sure the URL is correct based on your Express setup
+      await axios.delete(`http://127.0.0.1:3000/api/events/${eventId}`, {
+        headers: {
+          "x-auth-token": userState.token,
+        },
+      });
+
+      // Update local state to remove the deleted event
+      setMyEvents((prevEvents) =>
+        prevEvents.filter((event) => event.id !== parseInt(eventId))
+      );
+
+      // Optionally dispatch an action to update context state if needed
+      eventsDispatch({ type: "deleteEvent", payload: eventId }); // Adjust payload as needed
+    } catch (err) {
+      console.error("Error deleting event:", err);
+    }
+  };
 
   const [debouncedInput, setDebouncedInput] = useState(input);
 
@@ -236,9 +266,21 @@ function EventsMy() {
               spacing={10}
             >
               {myEvents.map((event) => (
-                <Link key={event.id} to={`/events/${event.id}`}>
-                  <EventCard event={event} />
-                </Link>
+                <Box>
+                  <Link to={`/events/${event.id}`}>
+                    <EventCard event={event} />
+                  </Link>
+                  <Stack direction="row" spacing={4} marginTop={2}>
+                    <Link to={`/events/edit/${event.id}`}>
+                      <Button>Edit</Button>
+                    </Link>
+                    <Button
+                      onClick={() => handleDeleteEvent(event.id.toString())}
+                    >
+                      Delete
+                    </Button>
+                  </Stack>
+                </Box>
               ))}
             </SimpleGrid>
           )}
