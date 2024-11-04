@@ -1,132 +1,230 @@
+import { useEffect, useState } from "react";
+import { useEventsContext } from "../contexts/eventsContext";
 import {
   SimpleGrid,
   Box,
   Heading,
-  Button,
-  Stack,
-  Spinner,
   Text,
+  Spinner,
+  VStack,
+  HStack,
+  InputGroup,
+  InputLeftElement,
+  Input,
 } from "@chakra-ui/react";
-import { useEventsContext } from "../contexts/eventsContext";
 import { Link } from "react-router-dom";
 import EventCard from "./eventCard";
-import axios from "axios";
-import { useEffect, useState } from "react";
 import { event } from "../types/event";
+import { CalendarIcon, SearchIcon } from "@chakra-ui/icons";
+import axios from "axios";
 import { useUserContext } from "../contexts/userContext";
-import { EventsSearchMy } from "./eventsSearchMy";
 
 function EventsMy() {
   const { userState } = useUserContext();
-  const [userEvents, setUserEvents] = useState<event[]>([]);
-  const { eventsState, eventsDispatch } = useEventsContext();
-  const [filteredEvents, setFilteredEvents] = useState<event[]>([]);
-  const [resultsFound, setResultsFound] = useState<boolean>(true);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [myEvents, setMyEvents] = useState<event[]>([]);
+
+  const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+
+  const [loading, setLoading] = useState(true);
+
+  const [isBottom, setIsBottom] = useState(false);
+  let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  const [input, setInput] = useState({
+    search: "",
+    venue: "",
+    city: "",
+    country: "",
+    startDate: "",
+    endDate: "",
+  });
+
+  const [debouncedInput, setDebouncedInput] = useState(input);
 
   useEffect(() => {
-    if (!userState.token) return;
-
-    setLoading(true); // Start loading
-    axios
-      .get("http://127.0.0.1:3000/api/events/myEvents", {
-        headers: {
-          "x-auth-token": userState.token,
-        },
-      })
-      .then((res) => {
-        setUserEvents(res.data);
-        setLoading(false); // Stop loading once data is fetched
-      })
-      .catch((err) => {
-        console.log(err);
+    const handleSearch = async () => {
+      try {
+        if (!userState.token) return;
+        setLoading(true);
+        setPage(1);
+        const result = await axios.get<event[]>(
+          `http://localhost:3000/api/events/myEvents?search=${input.search}&venue=${input.venue}&city=${input.city}&country=${input.country}&startDate=${input.startDate}&endDate=${input.endDate}&page=1`,
+          {
+            headers: {
+              "x-auth-token": userState.token,
+            },
+          }
+        );
+        setMyEvents(result.data);
         setLoading(false);
-      });
-  }, [userState.token]);
+      } catch (error: any) {
+        setError(error.message);
+      }
+    };
+    handleSearch();
+  }, [debouncedInput, userState.token]);
 
-  const handleDeleteEvent = async (eventId: string) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this event?"
-    );
-    if (!confirmed) {
-      return;
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedInput(input);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [input]);
+
+  const handleScroll = () => {
+    if (scrollTimeout) {
+      clearTimeout(scrollTimeout);
     }
-    try {
-      // Make sure the URL is correct based on your Express setup
-      await axios.delete(`http://127.0.0.1:3000/api/events/${eventId}`, {
-        headers: {
-          "x-auth-token": userState.token,
-        },
-      });
 
-      // Update local state to remove the deleted event
-      setUserEvents((prevEvents) =>
-        prevEvents.filter((event) => event.id !== parseInt(eventId))
-      );
-
-      // Optionally dispatch an action to update context state if needed
-      eventsDispatch({ type: "deleteEvent", payload: eventId }); // Adjust payload as needed
-    } catch (err) {
-      console.error("Error deleting event:", err);
-    }
+    scrollTimeout = setTimeout(() => {
+      if (
+        window.innerHeight + window.scrollY >=
+        document.body.offsetHeight - 10
+      ) {
+        if (!isBottom) {
+          setPage((prevPage) => prevPage + 1);
+          setIsBottom(true);
+        }
+      } else {
+        setIsBottom(false);
+      }
+    }, 100);
   };
 
-  const handleSearchResults = (results: event[]) => {
-    setFilteredEvents(results.length > 0 ? results : []);
-    setResultsFound(results.length > 0);
-  };
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+    };
+  }, []);
 
-  const eventsToDisplay =
-    filteredEvents.length > 0 // Show filtered events if found
-      ? filteredEvents
-      : !resultsFound // If no results found and resultsFound is false
-      ? []
-      : userEvents;
+  useEffect(() => {
+    const getEvents = async () => {
+      try {
+        if (!userState.token) return;
+        setLoading(true);
+        const result = await axios.get<event[]>(
+          `http://localhost:3000/api/events/myEvents?search=${input.search}&venue=${input.venue}&city=${input.city}&country=${input.country}&startDate=${input.startDate}&endDate=${input.endDate}&page=${page}`,
+          {
+            headers: {
+              "x-auth-token": userState.token,
+            },
+          }
+        );
+        const uniqueEvents = [
+          ...myEvents,
+          ...result.data.filter(
+            (newEvent) => !myEvents.some((event) => event.id === newEvent.id)
+          ),
+        ];
+        setMyEvents(uniqueEvents);
+        setLoading(false);
+      } catch (error: any) {
+        setError(error.message);
+      }
+    };
+    if (page !== 1) {
+      getEvents();
+    }
+  }, [page, userState.token]);
 
   return (
-    <Box display="flex" justifyContent="center" width="100%">
-      <Box width="90%" maxWidth="1200px">
-        <EventsSearchMy
-          onSearch={handleSearchResults}
-          onResultsFound={setResultsFound}
-        />
-        <Heading paddingTop={4}>My Events</Heading>
-
-        {loading ? ( // Show loader if data is being fetched
-          <Box display="flex" justifyContent="center" padding={10}>
-            <Spinner size="lg" />
-          </Box>
-        ) : eventsToDisplay.length === 0 ? ( // Show message if no events found
-          <Box padding={10}>
-            <Text>No Events Found</Text>
-          </Box>
-        ) : (
-          <SimpleGrid
-            columns={{ sm: 1, md: 2, lg: 2, xl: 3 }}
-            padding={10}
-            spacing={10}
-          >
-            {eventsToDisplay.map((event) => (
-              <Box key={event.id} borderWidth={1} borderRadius="lg" padding={4}>
-                <Link to={`/events/${event.id}`}>
+    <VStack>
+      <Box p={5} borderWidth={1} borderRadius="lg" boxShadow="md">
+        <HStack spacing={6} align="center" wrap="wrap">
+          <InputGroup size="sm" maxWidth="200px">
+            <InputLeftElement pointerEvents="none">
+              <SearchIcon color="gray.500" />
+            </InputLeftElement>
+            <Input
+              placeholder="Search by Title"
+              value={input.search}
+              onChange={(e) => setInput({ ...input, search: e.target.value })}
+            />
+          </InputGroup>
+          <Input
+            placeholder="Venue"
+            size="sm"
+            maxWidth="150px"
+            value={input.venue}
+            onChange={(e) => setInput({ ...input, venue: e.target.value })}
+          />
+          <Input
+            placeholder="City"
+            size="sm"
+            maxWidth="150px"
+            value={input.city}
+            onChange={(e) => setInput({ ...input, city: e.target.value })}
+          />
+          <Input
+            placeholder="Country"
+            size="sm"
+            maxWidth="150px"
+            value={input.country}
+            onChange={(e) => setInput({ ...input, country: e.target.value })}
+          />
+          <InputGroup size="sm" maxWidth="190px">
+            <InputLeftElement pointerEvents="none">
+              <CalendarIcon color="gray.500" />
+            </InputLeftElement>
+            <Input
+              type="date"
+              placeholder="Start Date"
+              value={input.startDate}
+              onChange={(e) =>
+                setInput({ ...input, startDate: e.target.value })
+              }
+            />
+          </InputGroup>
+          <InputGroup size="sm" maxWidth="190px">
+            <InputLeftElement pointerEvents="none">
+              <CalendarIcon color="gray.500" />
+            </InputLeftElement>
+            <Input
+              type="date"
+              placeholder="End Date"
+              value={input.endDate}
+              onChange={(e) => setInput({ ...input, endDate: e.target.value })}
+            />
+          </InputGroup>
+        </HStack>
+      </Box>
+      <Box display="flex" justifyContent="center" width="100%">
+        <Box width="90%" maxWidth="1200px">
+          {" "}
+          {/* Adjust width as needed */}
+          <Heading paddingTop={4}>My Events</Heading>
+          {loading ? ( // Show loader while fetching data
+            <Box display="flex" justifyContent="center" padding={10}>
+              <Spinner size="lg" />
+            </Box>
+          ) : myEvents.length === 0 ? (
+            <Box padding={10}>
+              <Text>No Events Found</Text>
+            </Box>
+          ) : (
+            <SimpleGrid
+              columns={{ sm: 1, md: 2, lg: 2, xl: 3 }}
+              padding={10}
+              spacing={10}
+            >
+              {myEvents.map((event) => (
+                <Link key={event.id} to={`/events/${event.id}`}>
                   <EventCard event={event} />
                 </Link>
-                <Stack direction="row" spacing={4} marginTop={2}>
-                  <Link to={`/events/edit/${event.id}`}>
-                    <Button>Edit</Button>
-                  </Link>
-                  <Button
-                    onClick={() => handleDeleteEvent(event.id.toString())}
-                  >
-                    Delete
-                  </Button>
-                </Stack>
-              </Box>
-            ))}
-          </SimpleGrid>
-        )}
+              ))}
+            </SimpleGrid>
+          )}
+        </Box>
       </Box>
-    </Box>
+    </VStack>
   );
 }
 

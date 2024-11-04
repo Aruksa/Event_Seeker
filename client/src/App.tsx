@@ -14,16 +14,14 @@ import { CategoriesContext } from "./contexts/categoriesContext";
 const App = () => {
   const [userState, userDispatch] = useReducer(userReducer, { token: "" });
   const [loading, setLoading] = useState<boolean>(true);
-  const [eventsState, eventsDispatch] = useReducer(eventsReducer, {
-    events: [],
-  });
+
   const [categories, setCategories] = useState<category[]>([]);
   const [error, setError] = useState<string | null>(null); // Error state
   const cookies = new Cookies();
 
-  const [page, setPage] = useState<number>(1);
-  const [isBottom, setIsBottom] = useState<boolean>(false);
-  let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
+  const [eventsState, eventsDispatch] = useReducer(eventsReducer, {
+    events: [],
+  });
 
   useEffect(() => {
     const token = cookies.get("token");
@@ -36,17 +34,6 @@ const App = () => {
 
     const fetchData = async () => {
       try {
-        // Fetch events regardless of user authentication
-        const eventsResponse = await axios.get(
-          `http://127.0.0.1:3000/api/events?page=${page}`
-        );
-        if (isMounted) {
-          eventsDispatch({
-            type: "appendEvents",
-            payload: eventsResponse.data,
-          });
-        }
-
         const categoriesResponse = await axios.get(
           "http://127.0.0.1:3000/api/events/categories"
         );
@@ -70,37 +57,7 @@ const App = () => {
     return () => {
       isMounted = false; // Cleanup function to prevent state updates
     };
-  }, [userState.token, page]); // Add userState.token as a dependency
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
-      }
-    };
-  }, []);
-
-  const handleScroll = () => {
-    if (scrollTimeout) {
-      clearTimeout(scrollTimeout);
-    }
-
-    scrollTimeout = setTimeout(() => {
-      if (
-        window.innerHeight + window.scrollY >=
-        document.body.offsetHeight - 10
-      ) {
-        if (!isBottom) {
-          setPage((prevPage) => prevPage + 1);
-          setIsBottom(true);
-        }
-      } else {
-        setIsBottom(false);
-      }
-    }, 100);
-  };
+  }, [userState.token]); // Add userState.token as a dependency
 
   return (
     <UserContext.Provider value={{ userState, userDispatch }}>
