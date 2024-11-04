@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useEventsContext } from "../contexts/eventsContext";
 import {
   SimpleGrid,
@@ -42,12 +42,20 @@ function EventsMy() {
 
   const [debouncedInput, setDebouncedInput] = useState(input);
 
+  const [hasMore, setHasMore] = useState(true);
+  const hasMoreRef = useRef(hasMore);
+
+  useEffect(() => {
+    hasMoreRef.current = hasMore;
+  }, [hasMore]);
+
   useEffect(() => {
     const handleSearch = async () => {
       try {
         if (!userState.token) return;
         setLoading(true);
         setPage(1);
+        setHasMore(true); // Reset hasMore on a new search
         const result = await axios.get<event[]>(
           `http://localhost:3000/api/events/myEvents?search=${input.search}&venue=${input.venue}&city=${input.city}&country=${input.country}&startDate=${input.startDate}&endDate=${input.endDate}&page=1`,
           {
@@ -81,6 +89,10 @@ function EventsMy() {
     }
 
     scrollTimeout = setTimeout(() => {
+      if (!hasMoreRef.current) {
+        console.log("No more pages to load."); // Debugging line
+        return; // Exit if no more pages are available
+      }
       if (
         window.innerHeight + window.scrollY >=
         document.body.offsetHeight - 10
@@ -107,6 +119,7 @@ function EventsMy() {
 
   useEffect(() => {
     const getEvents = async () => {
+      if (!hasMoreRef.current) return; // Early exit if no more pages
       try {
         if (!userState.token) return;
         setLoading(true);
@@ -118,14 +131,19 @@ function EventsMy() {
             },
           }
         );
-        const uniqueEvents = [
-          ...myEvents,
-          ...result.data.filter(
-            (newEvent) => !myEvents.some((event) => event.id === newEvent.id)
-          ),
-        ];
-        setMyEvents(uniqueEvents);
-        setLoading(false);
+        if (result.data.length === 0) {
+          setHasMore(false); // No more pages to fetch
+          setLoading(false);
+        } else {
+          const uniqueEvents = [
+            ...myEvents,
+            ...result.data.filter(
+              (newEvent) => !myEvents.some((event) => event.id === newEvent.id)
+            ),
+          ];
+          setMyEvents(uniqueEvents);
+          setLoading(false);
+        }
       } catch (error: any) {
         setError(error.message);
       }
@@ -138,7 +156,7 @@ function EventsMy() {
   return (
     <VStack>
       <Box p={5} borderWidth={1} borderRadius="lg" boxShadow="md">
-        <HStack spacing={6} align="center" wrap="wrap">
+        <HStack spacing={6} align="center" wrap="nowrap">
           <InputGroup size="sm" maxWidth="200px">
             <InputLeftElement pointerEvents="none">
               <SearchIcon color="gray.500" />
@@ -200,7 +218,9 @@ function EventsMy() {
         <Box width="90%" maxWidth="1200px">
           {" "}
           {/* Adjust width as needed */}
-          <Heading paddingTop={4}>My Events</Heading>
+          <Heading paddingTop={4} paddingLeft={7}>
+            My Events
+          </Heading>
           {loading ? ( // Show loader while fetching data
             <Box display="flex" justifyContent="center" padding={10}>
               <Spinner size="lg" />
