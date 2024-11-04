@@ -21,6 +21,10 @@ const App = () => {
   const [error, setError] = useState<string | null>(null); // Error state
   const cookies = new Cookies();
 
+  const [page, setPage] = useState<number>(1);
+  const [isBottom, setIsBottom] = useState<boolean>(false);
+  let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
+
   useEffect(() => {
     const token = cookies.get("token");
     if (token) {
@@ -34,10 +38,13 @@ const App = () => {
       try {
         // Fetch events regardless of user authentication
         const eventsResponse = await axios.get(
-          "http://127.0.0.1:3000/api/events"
+          `http://127.0.0.1:3000/api/events?page=${page}`
         );
         if (isMounted) {
-          eventsDispatch({ type: "getEvents", payload: eventsResponse.data });
+          eventsDispatch({
+            type: "appendEvents",
+            payload: eventsResponse.data,
+          });
         }
 
         const categoriesResponse = await axios.get(
@@ -63,7 +70,37 @@ const App = () => {
     return () => {
       isMounted = false; // Cleanup function to prevent state updates
     };
-  }, [userState.token]); // Add userState.token as a dependency
+  }, [userState.token, page]); // Add userState.token as a dependency
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+    };
+  }, []);
+
+  const handleScroll = () => {
+    if (scrollTimeout) {
+      clearTimeout(scrollTimeout);
+    }
+
+    scrollTimeout = setTimeout(() => {
+      if (
+        window.innerHeight + window.scrollY >=
+        document.body.offsetHeight - 10
+      ) {
+        if (!isBottom) {
+          setPage((prevPage) => prevPage + 1);
+          setIsBottom(true);
+        }
+      } else {
+        setIsBottom(false);
+      }
+    }, 100);
+  };
 
   return (
     <UserContext.Provider value={{ userState, userDispatch }}>
@@ -72,14 +109,14 @@ const App = () => {
           <Grid
             templateAreas={{
               base: `"nav" "main"`,
-              // lg: `"nav nav" "aside main"`, //1024
+              // lg: "nav nav" "aside main", //1024
             }}
           >
             <GridItem area="nav">
               <NavBar />
             </GridItem>
             <GridItem area="main">
-              <Outlet />          
+              <Outlet />
               {error && <Text color="red.500">{error}</Text>}{" "}
               {/* Display error if exists */}
             </GridItem>

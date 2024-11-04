@@ -70,8 +70,8 @@ export const EventsSearch = ({
   };
 
   return (
-    <Box p={4} borderWidth={1} borderRadius="lg" boxShadow="md">
-      <HStack spacing={4} align="center" wrap="wrap">
+    <Box p={5} borderWidth={1} borderRadius="lg" boxShadow="md">
+      <HStack spacing={6} align="center" wrap="wrap">
         <InputGroup size="sm" maxWidth="200px">
           <InputLeftElement pointerEvents="none">
             <SearchIcon color="gray.500" />

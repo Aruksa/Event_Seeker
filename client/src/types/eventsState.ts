@@ -7,4 +7,5 @@ export interface eventsState {
 export type eventsAction =
   | { type: "getEvents"; payload: event[] }
   | { type: "updateEvent"; payload: event }
-  | { type: "deleteEvent"; payload: string };
+  | { type: "deleteEvent"; payload: string }
+  | { type: "appendEvents"; payload: event[] };

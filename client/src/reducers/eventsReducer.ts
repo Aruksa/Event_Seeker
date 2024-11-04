@@ -6,6 +6,12 @@ export const eventsReducer = (state: eventsState, action: eventsAction) => {
   switch (type) {
     case "getEvents":
       return { ...state, events: payload };
+    case "appendEvents":
+      return {
+        ...state,
+        events: [...state.events, ...action.payload],
+      };
+
     case "updateEvent":
       return {
         ...state,
