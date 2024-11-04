@@ -4,6 +4,7 @@ import { eventsAction, eventsState } from "../types/eventsState";
 interface EventsContextType {
   eventsState: eventsState;
   eventsDispatch: Dispatch<eventsAction>;
+  loading: boolean;
 }
 
 export const EventsContext = createContext<EventsContextType | undefined>(

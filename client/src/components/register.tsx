@@ -47,7 +47,9 @@ const SignUp = () => {
       try {
         const response = await createUser(formData);
         userDispatch({ type: "login", payload: response });
-        cookies.set("token", response, { expires: expirationDate });
+        const set = await cookies.set("token", response, {
+          expires: expirationDate,
+        });
         console.log("Signup successful:", response);
         setFormData({ name: "", email: "", password: "" });
       } catch (err: any) {

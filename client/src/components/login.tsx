@@ -44,7 +44,9 @@ const Login = () => {
       try {
         const response = await loginUser(formData);
         userDispatch({ type: "login", payload: response });
-        cookies.set("token", response, { expires: expirationDate });
+        const set = await cookies.set("token", response, {
+          expires: expirationDate,
+        });
         setFormData({ email: "", password: "" });
         console.log("Login successful, token received:", response);
       } catch (err) {

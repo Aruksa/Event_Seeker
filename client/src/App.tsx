@@ -1,11 +1,4 @@
-import {
-  Center,
-  Grid,
-  GridItem,
-  Skeleton,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
+import { Grid, GridItem, Text } from "@chakra-ui/react";
 import NavBar from "./components/navBar";
 import { Outlet } from "react-router-dom";
 import { useEffect, useReducer, useState } from "react";
@@ -20,38 +13,13 @@ import { CategoriesContext } from "./contexts/categoriesContext";
 
 const App = () => {
   const [userState, userDispatch] = useReducer(userReducer, { token: "" });
+  const [loading, setLoading] = useState<boolean>(true);
   const [eventsState, eventsDispatch] = useReducer(eventsReducer, {
     events: [],
   });
-
   const [categories, setCategories] = useState<category[]>([]);
-  const [page, setPage] = useState<number>(1);
-  const [isBottom, setIsBottom] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [noMoreEvents, setNoMoreEvents] = useState<boolean>(false);
-
+  const [error, setError] = useState<string | null>(null); // Error state
   const cookies = new Cookies();
-
-  const handleScroll = () => {
-    if (
-      window.innerHeight + window.scrollY >=
-      document.body.offsetHeight - 10
-    ) {
-      if (!isBottom) {
-        setPage((prevPage) => prevPage + 1);
-        setIsBottom(true);
-      }
-    } else {
-      setIsBottom(false);
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
 
   useEffect(() => {
     const token = cookies.get("token");
@@ -59,44 +27,47 @@ const App = () => {
       userDispatch({ type: "login", payload: token });
     }
 
-    axios
-      .get("http://127.0.0.1:3000/api/events/categories")
-      .then((res) => setCategories(res.data))
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
+    setLoading(true); // Start loading
+    let isMounted = true; // Track if component is mounted
 
-  useEffect(() => {
-    const fetchEvents = async () => {
-      setLoading(true);
+    const fetchData = async () => {
       try {
-        const response = await axios.get(
-          `http://127.0.0.1:3000/api/events?limit=4&page=${page}`
+        // Fetch events regardless of user authentication
+        const eventsResponse = await axios.get(
+          "http://127.0.0.1:3000/api/events"
         );
-        if (response.data.length === 0) {
-          setNoMoreEvents(true); // Set noMoreEvents to true if no events are returned
-        } else {
-          eventsDispatch({
-            type: "getEvents",
-            payload: [...eventsState.events, ...response.data],
-          });
+        if (isMounted) {
+          eventsDispatch({ type: "getEvents", payload: eventsResponse.data });
+        }
+
+        const categoriesResponse = await axios.get(
+          "http://127.0.0.1:3000/api/events/categories"
+        );
+        if (isMounted) {
+          setCategories(categoriesResponse.data);
         }
       } catch (err) {
-        console.error("Error fetching events:", err);
+        console.error(err);
+        if (isMounted) {
+          setError("Failed to fetch data");
+        }
       } finally {
-        setLoading(false); // Set loading to false after fetching
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
-    if (!noMoreEvents) {
-      fetchEvents();
-    }
-  }, [page]);
+    fetchData();
+
+    return () => {
+      isMounted = false; // Cleanup function to prevent state updates
+    };
+  }, [userState.token]); // Add userState.token as a dependency
 
   return (
     <UserContext.Provider value={{ userState, userDispatch }}>
-      <EventsContext.Provider value={{ eventsState, eventsDispatch }}>
+      <EventsContext.Provider value={{ eventsState, eventsDispatch, loading }}>
         <CategoriesContext.Provider value={{ categories, setCategories }}>
           <Grid
             templateAreas={{
@@ -108,25 +79,9 @@ const App = () => {
               <NavBar />
             </GridItem>
             <GridItem area="main">
-              <Outlet />
-              {/* Skeleton loader displayed when loading is true */}
-              {loading && (
-                <Stack spacing={4} mt={4}>
-                  <Skeleton height="200px" />
-                  <Skeleton height="200px" />
-                  <Skeleton height="200px" />
-                  <Skeleton height="200px" />
-                </Stack>
-              )}
-
-              {/* "No More Events" message when noMoreEvents is true */}
-              {/* {!loading && noMoreEvents && (
-                <Center mt={4}>
-                  <Text fontSize="lg" color="gray.500">
-                    No more events to show!
-                  </Text>
-                </Center>
-              )} */}
+              <Outlet />          
+              {error && <Text color="red.500">{error}</Text>}{" "}
+              {/* Display error if exists */}
             </GridItem>
           </Grid>
         </CategoriesContext.Provider>
