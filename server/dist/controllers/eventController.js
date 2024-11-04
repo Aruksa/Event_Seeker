@@ -204,7 +204,7 @@ const getEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const not_interested = yield attendanceModel.count({
             where: {
                 eventId: eventId,
-                attendance_type: 0,
+                attendance_type: 1,
             },
         });
         const interested = yield attendanceModel.count({
@@ -225,14 +225,18 @@ const getEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         if (!categories) {
             return res.status(404).send("Event category not found!");
         }
+        const totalResponses = not_interested + interested + going;
+        const avg_attendance = totalResponses > 0
+            ? ((5 * going + 3 * interested + 1 * not_interested) /
+                totalResponses).toFixed(2)
+            : "No Rating";
         res.status(200).json({
             event: event,
             categories: categories.map((category) => category.categoryId),
             not_interested,
             interested,
             going,
-            avg_attendance: parseFloat(((5 * going + 3 * interested) /
-                (not_interested + interested + going)).toFixed(2)),
+            avg_attendance: avg_attendance,
             // attendees: event.dataValues.attendees,
         });
     }

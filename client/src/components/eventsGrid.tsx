@@ -214,7 +214,7 @@ function EventsGrid() {
         <Box width="90%" maxWidth="1200px">
           {" "}
           {/* Adjust width as needed */}
-          <Heading paddingTop={4} paddingLeft={8}>
+          <Heading paddingTop={4} paddingLeft={10}>
             Discover Event Listings
           </Heading>
           {loading ? ( // Show loader while fetching data

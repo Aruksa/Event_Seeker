@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { FaThumbsUp, FaThumbsDown, FaStar } from "react-icons/fa";
+import { FaThumbsUp, FaThumbsDown, FaHeart } from "react-icons/fa";
+import { MdOutlineStar } from "react-icons/md";
 
 import {
   Box,
@@ -23,6 +24,7 @@ import {
   WrapItem,
   IconButton,
   HStack,
+  Icon,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { CiLocationOn } from "react-icons/ci";
@@ -126,7 +128,7 @@ function EventDetails() {
     // Map scoreType to attendance_type values
     if (scoreType === "going") attendanceType = 5;
     else if (scoreType === "interested") attendanceType = 3;
-    else if (scoreType === "not_interested") attendanceType = 0;
+    else if (scoreType === "not_interested") attendanceType = 1;
 
     try {
       const url = `http://localhost:3000/api/events/${params.id}/attds`;
@@ -226,14 +228,12 @@ function EventDetails() {
                 paddingTop={3}
                 paddingLeft={1}
               >
-                <Text fontSize="lg" color="gray.600" mr={1}>
-                  Rating:
-                </Text>
-                <Text fontWeight="bold" fontSize="lg" color="blue.800">
-                  {event?.avg_attendance !== undefined &&
-                  event.avg_attendance !== null
-                    ? `${event.avg_attendance}/5`
-                    : "No rating"}
+                <HStack spacing={1} align="center">
+                  <Icon as={MdOutlineStar} boxSize={6} color="black" mt={0.5} />
+                  <Text fontSize="xl" color="gray.600"></Text>
+                </HStack>
+                <Text fontWeight="bold" fontSize="xl" color="blue.800">
+                  {event?.avg_attendance}
                 </Text>
               </Box>
               <Box bg="white" paddingTop={3} borderRadius="xl" boxShadow="sm">
@@ -262,8 +262,8 @@ function EventDetails() {
                       icon={<FaThumbsDown />}
                       onClick={() => handleScoreSubmit("not_interested")}
                       isLoading={loading}
-                      colorScheme={isUserVoted(0) ? "red" : "gray"}
-                      variant={isUserVoted(0) ? "solid" : "outline"}
+                      colorScheme={isUserVoted(1) ? "red" : "gray"}
+                      variant={isUserVoted(1) ? "solid" : "outline"}
                     />
                     <Text fontWeight="semibold">{event?.not_interested}</Text>
                   </HStack>
@@ -271,7 +271,7 @@ function EventDetails() {
                   <HStack spacing={2} align="center">
                     <IconButton
                       aria-label="Interested"
-                      icon={<FaStar />}
+                      icon={<FaHeart />}
                       onClick={() => handleScoreSubmit("interested")}
                       isLoading={loading}
                       colorScheme={isUserVoted(3) ? "blue" : "gray"}
