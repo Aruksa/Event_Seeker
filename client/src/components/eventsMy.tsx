@@ -8,13 +8,13 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useEventsContext } from "../contexts/eventsContext";
-import { EventsSearch } from "./eventsSearch";
 import { Link } from "react-router-dom";
 import EventCard from "./eventCard";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { event } from "../types/event";
 import { useUserContext } from "../contexts/userContext";
+import { EventsSearchMy } from "./eventsSearchMy";
 
 function EventsMy() {
   const { userState } = useUserContext();
@@ -86,7 +86,7 @@ function EventsMy() {
   return (
     <Box display="flex" justifyContent="center" width="100%">
       <Box width="90%" maxWidth="1200px">
-        <EventsSearch
+        <EventsSearchMy
           onSearch={handleSearchResults}
           onResultsFound={setResultsFound}
         />
