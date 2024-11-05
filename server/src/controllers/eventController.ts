@@ -81,22 +81,22 @@ export const postEvent = async (req: Request, res: Response) => {
 
     await eventCategoryModel.bulkCreate(eventCategoryData);
 
-    await client.index({
-      index: "events",
-      id: `${event.id}`,
-      body: {
-        title: event.title,
-        venue: event.venue,
-        city: event.city,
-        country: event.country,
-        description: event.description,
-        mode: event.mode,
-        thumbnail: event.thumbnail,
-        startDate: event.startDate,
-        endDate: event.endDate,
-        avg_attendance: 0,
-      },
-    });
+    // await client.index({
+    //   index: "events",
+    //   id: `${event.id}`,
+    //   body: {
+    //     title: event.title,
+    //     venue: event.venue,
+    //     city: event.city,
+    //     country: event.country,
+    //     description: event.description,
+    //     mode: event.mode,
+    //     thumbnail: event.thumbnail,
+    //     startDate: event.startDate,
+    //     endDate: event.endDate,
+    //     avg_attendance: 0,
+    //   },
+    // });
 
     res.status(201).json({
       ..._.omit(event.dataValues, ["userId"]),
@@ -335,33 +335,29 @@ export const updateEvent = async (req: Request, res: Response) => {
       where: {
         id: { [Op.ne]: eventId }, // Exclude the current event
         title: req.body.title,
-        venue: req.body.venue,
-        city: req.body.city,
-        country: req.body.country,
-        [Op.or]: [
-          {
-            startDate: {
-              [Op.lte]: formattedStartDate,
-            },
-            endDate: {
-              [Op.gte]: formattedStartDate,
-            },
-          },
-          {
-            startDate: {
-              [Op.between]: [formattedStartDate, formattedEndDate],
-            },
-          },
-        ],
+        // venue: req.body.venue,
+        // city: req.body.city,
+        // country: req.body.country,
+        // [Op.or]: [
+        //   {
+        //     startDate: {
+        //       [Op.lte]: formattedStartDate,
+        //     },
+        //     endDate: {
+        //       [Op.gte]: formattedStartDate,
+        //     },
+        //   },
+        //   {
+        //     startDate: {
+        //       [Op.between]: [formattedStartDate, formattedEndDate],
+        //     },
+        //   },
+        // ],
       },
     });
 
     if (events) {
-      return res
-        .status(400)
-        .send(
-          "Event cannot have the same title, location, and date as another existing event!"
-        );
+      return res.status(400).send("Event cannot have the same title!");
     }
 
     // Update the event

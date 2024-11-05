@@ -16,7 +16,6 @@ exports.getCategories = exports.updateEvent = exports.deleteEvent = exports.getE
 const sequelize_1 = require("sequelize");
 const index_1 = __importDefault(require("../models/index"));
 const sequelize_2 = require("sequelize");
-const elasticSearch_1 = __importDefault(require("../config/elasticSearch"));
 const _ = require("lodash");
 const eventModel = index_1.default.event;
 const eventCategoryModel = index_1.default.event_categories;
@@ -71,22 +70,22 @@ const postEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             categoryId: categoryId,
         }));
         yield eventCategoryModel.bulkCreate(eventCategoryData);
-        yield elasticSearch_1.default.index({
-            index: "events",
-            id: `${event.id}`,
-            body: {
-                title: event.title,
-                venue: event.venue,
-                city: event.city,
-                country: event.country,
-                description: event.description,
-                mode: event.mode,
-                thumbnail: event.thumbnail,
-                startDate: event.startDate,
-                endDate: event.endDate,
-                avg_attendance: 0,
-            },
-        });
+        // await client.index({
+        //   index: "events",
+        //   id: `${event.id}`,
+        //   body: {
+        //     title: event.title,
+        //     venue: event.venue,
+        //     city: event.city,
+        //     country: event.country,
+        //     description: event.description,
+        //     mode: event.mode,
+        //     thumbnail: event.thumbnail,
+        //     startDate: event.startDate,
+        //     endDate: event.endDate,
+        //     avg_attendance: 0,
+        //   },
+        // });
         res.status(201).json(Object.assign(Object.assign({}, _.omit(event.dataValues, ["userId"])), { categories: categories }));
     }
     catch (error) {
@@ -297,30 +296,28 @@ const updateEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             where: {
                 id: { [sequelize_2.Op.ne]: eventId }, // Exclude the current event
                 title: req.body.title,
-                venue: req.body.venue,
-                city: req.body.city,
-                country: req.body.country,
-                [sequelize_2.Op.or]: [
-                    {
-                        startDate: {
-                            [sequelize_2.Op.lte]: formattedStartDate,
-                        },
-                        endDate: {
-                            [sequelize_2.Op.gte]: formattedStartDate,
-                        },
-                    },
-                    {
-                        startDate: {
-                            [sequelize_2.Op.between]: [formattedStartDate, formattedEndDate],
-                        },
-                    },
-                ],
+                // venue: req.body.venue,
+                // city: req.body.city,
+                // country: req.body.country,
+                // [Op.or]: [
+                //   {
+                //     startDate: {
+                //       [Op.lte]: formattedStartDate,
+                //     },
+                //     endDate: {
+                //       [Op.gte]: formattedStartDate,
+                //     },
+                //   },
+                //   {
+                //     startDate: {
+                //       [Op.between]: [formattedStartDate, formattedEndDate],
+                //     },
+                //   },
+                // ],
             },
         });
         if (events) {
-            return res
-                .status(400)
-                .send("Event cannot have the same title, location, and date as another existing event!");
+            return res.status(400).send("Event cannot have the same title!");
         }
         // Update the event
         const updatedEvent = yield event.update({

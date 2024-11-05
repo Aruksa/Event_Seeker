@@ -188,13 +188,11 @@ const EventPost = () => {
             endDate: "",
             categories: "",
           }); // RESET ERRORS ON SUCCESS
+          showToast("success", "Event posted successfully!", "Success");
           navigate("/");
         })
         .catch((error: any) => {
-          showToast("error", error.message, "Error");
-        })
-        .finally(() => {
-          showToast("success", "Event posted successfully!", "Success");
+          showToast("error", error.response.data);
         });
     } else {
       // If not valid, show error message

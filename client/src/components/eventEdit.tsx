@@ -175,11 +175,10 @@ const EventEdit = () => {
           { headers: { "x-auth-token": userState.token } }
         );
         eventsDispatch({ type: "updateEvent", payload: res.data });
+        showToast("success", "Event updated successfully!", "Success");
         navigate("/");
       } catch (error: any) {
-        showToast("error", error.message);
-      } finally {
-        showToast("success", "Event updated successfully!", "Success");
+        showToast("error", error.response.data);
       }
     } else {
       setErrorMessage("Please fill in all fields before submitting!");

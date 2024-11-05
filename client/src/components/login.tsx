@@ -99,12 +99,12 @@ const Login = () => {
           Log in
         </Heading>
         <Stack padding="10px" spacing={7} boxSize={450}>
-          {errors.general && (
+          {/* {errors.general && (
             <Alert borderRadius={10} status="error">
               <AlertIcon />
               <AlertTitle>{errors.general}</AlertTitle>
             </Alert>
-          )}
+          )} */}
           <FormControl isInvalid={!!errors.email}>
             <Input
               id="email"

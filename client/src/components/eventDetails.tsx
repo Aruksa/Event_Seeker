@@ -146,11 +146,7 @@ function EventDetails() {
       setUserEventScore(response.data);
     } catch (error: any) {
       if (error.response && error.response.status === 401) {
-        showToast(
-          "error",
-          "You must be logged in to update your score.",
-          "Login Required"
-        );
+        showToast("error", "Please log in to continue!", error.response.data);
       }
       setError("Failed to update score. Please try again.");
     } finally {
@@ -180,12 +176,12 @@ function EventDetails() {
   };
   return (
     <>
-      {error && (
+      {/* {error && (
         <Alert borderRadius={10} status="error">
           <AlertIcon />
           <AlertTitle>{error}</AlertTitle>
         </Alert>
-      )}
+      )} */}
       <Container maxW={"7xl"}>
         <SimpleGrid
           columns={{ base: 1, lg: 2 }}
