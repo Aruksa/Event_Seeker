@@ -8,9 +8,6 @@ import countryList from "react-select-country-list";
 import { IoImageOutline } from "react-icons/io5";
 
 import {
-  Alert,
-  AlertIcon,
-  AlertTitle,
   Button,
   Grid,
   Image,
@@ -25,7 +22,6 @@ import {
   FormControl,
 } from "@chakra-ui/react";
 import { CloseIcon } from "@chakra-ui/icons";
-import { category } from "../types/category";
 import { useNavigate } from "react-router-dom";
 import UploadWidget from "./uploadWidget";
 import { showToast } from "../services/showToast";

@@ -1,5 +1,4 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { useCategoriesContext } from "../contexts/categoriesContext";
 import { useEventsContext } from "../contexts/eventsContext";
 import { useUserContext } from "../contexts/userContext";
 import axios from "axios";
@@ -23,9 +22,9 @@ import {
   Heading,
 } from "@chakra-ui/react";
 import { CloseIcon } from "@chakra-ui/icons";
-import { category } from "../types/category";
 import { useNavigate, useParams } from "react-router-dom";
 import UploadWidget from "./uploadWidget";
+import { showToast } from "../services/showToast";
 
 const EventEdit = () => {
   const navigate = useNavigate();
@@ -47,8 +46,6 @@ const EventEdit = () => {
     endDate: "",
   });
 
-  const [event, setEvent] = useState();
-  const [error, setError] = useState("");
   useEffect(() => {
     if (!userState.token) {
       navigate("/"); // Redirect to login if not authenticated
@@ -57,7 +54,7 @@ const EventEdit = () => {
       .get(`http://localhost:3000/api/events/${params.id}`)
       .then((res) => {
         const eventData = res.data.event;
-        setEvent(eventData);
+
         setNewEvent(eventData);
         console.log(eventData);
         if (eventData) {
@@ -78,8 +75,7 @@ const EventEdit = () => {
       })
 
       .catch((error: any) => {
-        console.error(error);
-        setError("Failed to load event data");
+        showToast("error", error.message);
       });
   }, [userState.token]);
 
@@ -134,8 +130,10 @@ const EventEdit = () => {
         );
         eventsDispatch({ type: "updateEvent", payload: res.data });
         navigate("/");
-      } catch (error) {
-        console.error("Error updating event:", error);
+      } catch (error: any) {
+        showToast("error", error.message);
+      } finally {
+        showToast("success", "Event updated successfully!", "Success");
       }
     } else {
       setErrorMessage("Please fill in all fields before submitting!");
@@ -148,26 +146,16 @@ const EventEdit = () => {
   ) => {
     setNewEvent({ ...newEvent, [e.target.id]: e.target.value });
     if (isErrorVisible) {
-      setErrorMessage(""); // Clear error message when user starts typing
-      setIsErrorVisible(false); // Hide error popup when typing
+      setErrorMessage("");
+      setIsErrorVisible(false);
     }
   };
 
   const handleModeChange = (selectedOption: any) => {
     setNewEvent({
       ...newEvent,
-      mode: selectedOption.value, // Update mode in newEvent
+      mode: selectedOption.value,
     });
-  };
-  // console.log(newEvent);
-
-  const [imagePreview, setImagePreview] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleImageChange = () => {};
-
-  const uploadImage = async (e: FormEvent) => {
-    e.preventDefault;
   };
 
   return (
@@ -196,35 +184,6 @@ const EventEdit = () => {
               height="100%"
               // maxHeight="100vh"
             />
-            {/* {newEvent.thumbnail && (
-              <Box
-                position="absolute"
-                bottom="10px"
-                left="10px"
-                display="flex"
-                alignItems="center"
-              >
-                <Image
-                  src={
-                    "https://cdn-icons-png.flaticon.com/512/3769/3769151.png"
-                  }
-                  alt="Placeholder"
-                  borderRadius="md"
-                  maxHeight="200px"
-                  objectFit="cover"
-                  marginRight="10px" // Add some space between the image and the message box
-                />
-                <Box
-                  backgroundColor="white"
-                  borderRadius="md"
-                  padding="10px"
-                  boxShadow="md"
-                  maxWidth="250px" // You can adjust this width as needed
-                >
-                  Great Job! The event looks great!
-                </Box>
-              </Box>
-            )} */}
           </Box>
           <Box marginLeft={{ base: "0", md: "50px" }}>
             <form onSubmit={handleUpdateEvent}>
@@ -303,6 +262,9 @@ const EventEdit = () => {
                     <label htmlFor="mode">Mode</label>
                     <Select
                       options={modeOptions}
+                      value={modeOptions.find(
+                        (option) => option.value === newEvent.mode
+                      )}
                       onChange={handleModeChange}
                       placeholder="Select Mode"
                       styles={{
