@@ -13,7 +13,7 @@ import { CategoriesContext } from "./contexts/categoriesContext";
 
 const App = () => {
   const [userState, userDispatch] = useReducer(userReducer, { token: "" });
-  const [loading, setLoading] = useState<boolean>(true);
+  // const [loading, setLoading] = useState<boolean>(true);
 
   const [categories, setCategories] = useState<category[]>([]);
   const [error, setError] = useState<string | null>(null); // Error state
@@ -29,7 +29,7 @@ const App = () => {
       userDispatch({ type: "login", payload: token });
     }
 
-    setLoading(true); // Start loading
+    // setLoading(true);
     let isMounted = true; // Track if component is mounted
 
     const fetchData = async () => {
@@ -47,7 +47,7 @@ const App = () => {
         }
       } finally {
         if (isMounted) {
-          setLoading(false);
+          // setLoading(false);
         }
       }
     };
@@ -61,7 +61,7 @@ const App = () => {
 
   return (
     <UserContext.Provider value={{ userState, userDispatch }}>
-      <EventsContext.Provider value={{ eventsState, eventsDispatch, loading }}>
+      <EventsContext.Provider value={{ eventsState, eventsDispatch }}>
         <CategoriesContext.Provider value={{ categories, setCategories }}>
           <Grid
             templateAreas={{

@@ -35,7 +35,7 @@ function EventsMy() {
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
 
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
 
   const [isBottom, setIsBottom] = useState(false);
   let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -89,7 +89,7 @@ function EventsMy() {
     const handleSearch = async () => {
       try {
         if (!userState.token) return;
-        setLoading(true);
+        // setLoading(true);
         setPage(1);
         setHasMore(true); // Reset hasMore on a new search
         const result = await axios.get<event[]>(
@@ -101,7 +101,7 @@ function EventsMy() {
           }
         );
         setMyEvents(result.data);
-        setLoading(false);
+        // setLoading(false);
       } catch (error: any) {
         setError(error.message);
       }
@@ -158,7 +158,7 @@ function EventsMy() {
       if (!hasMoreRef.current) return; // Early exit if no more pages
       try {
         if (!userState.token) return;
-        setLoading(true);
+        // setLoading(true);
         const result = await axios.get<event[]>(
           `http://localhost:3000/api/events/myEvents?search=${input.search}&venue=${input.venue}&city=${input.city}&country=${input.country}&startDate=${input.startDate}&endDate=${input.endDate}&page=${page}`,
           {
@@ -169,7 +169,7 @@ function EventsMy() {
         );
         if (result.data.length === 0) {
           setHasMore(false); // No more pages to fetch
-          setLoading(false);
+          // setLoading(false);
         } else {
           const uniqueEvents = [
             ...myEvents,
@@ -178,7 +178,7 @@ function EventsMy() {
             ),
           ];
           setMyEvents(uniqueEvents);
-          setLoading(false);
+          // setLoading(false);
         }
       } catch (error: any) {
         setError(error.message);
@@ -257,11 +257,7 @@ function EventsMy() {
           <Heading paddingTop={4} paddingLeft={7}>
             My Events
           </Heading>
-          {loading ? ( // Show loader while fetching data
-            <Box display="flex" justifyContent="center" padding={10}>
-              <Spinner size="lg" />
-            </Box>
-          ) : myEvents.length === 0 ? (
+          {myEvents.length === 0 ? (
             <Box padding={10}>
               <Text>No Events Found</Text>
             </Box>
