@@ -35,33 +35,29 @@ export const postEvent = async (req: Request, res: Response) => {
     let events = await eventModel.findOne({
       where: {
         title: title,
-        venue: venue,
-        city: city,
-        country: country,
-        [Op.or]: [
-          {
-            startDate: {
-              [Op.lte]: formattedStartDate,
-            },
-            endDate: {
-              [Op.gte]: formattedStartDate,
-            },
-          },
-          {
-            startDate: {
-              [Op.between]: [formattedStartDate, formattedEndDate],
-            },
-          },
-        ],
+        // venue: venue,
+        // city: city,
+        // country: country,
+        // [Op.or]: [
+        //   {
+        //     startDate: {
+        //       [Op.lte]: formattedStartDate,
+        //     },
+        //     endDate: {
+        //       [Op.gte]: formattedStartDate,
+        //     },
+        //   },
+        //   {
+        //     startDate: {
+        //       [Op.between]: [formattedStartDate, formattedEndDate],
+        //     },
+        //   },
+        // ],
       },
     });
 
     if (events) {
-      return res
-        .status(400)
-        .send(
-          "Event cannot have the same title, location and date as another existing event!"
-        );
+      return res.status(400).send("Event cannot have the same title!");
     }
 
     let event = await eventModel.create({

@@ -30,30 +30,28 @@ const postEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         let events = yield eventModel.findOne({
             where: {
                 title: title,
-                venue: venue,
-                city: city,
-                country: country,
-                [sequelize_2.Op.or]: [
-                    {
-                        startDate: {
-                            [sequelize_2.Op.lte]: formattedStartDate,
-                        },
-                        endDate: {
-                            [sequelize_2.Op.gte]: formattedStartDate,
-                        },
-                    },
-                    {
-                        startDate: {
-                            [sequelize_2.Op.between]: [formattedStartDate, formattedEndDate],
-                        },
-                    },
-                ],
+                // venue: venue,
+                // city: city,
+                // country: country,
+                // [Op.or]: [
+                //   {
+                //     startDate: {
+                //       [Op.lte]: formattedStartDate,
+                //     },
+                //     endDate: {
+                //       [Op.gte]: formattedStartDate,
+                //     },
+                //   },
+                //   {
+                //     startDate: {
+                //       [Op.between]: [formattedStartDate, formattedEndDate],
+                //     },
+                //   },
+                // ],
             },
         });
         if (events) {
-            return res
-                .status(400)
-                .send("Event cannot have the same title, location and date as another existing event!");
+            return res.status(400).send("Event cannot have the same title!");
         }
         let event = yield eventModel.create({
             title: title,
