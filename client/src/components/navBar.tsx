@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useUserContext } from "../contexts/userContext";
 import Cookies from "universal-cookie";
 import { IoHome } from "react-icons/io5";
+import { showToast } from "../services/showToast";
 
 const NavBar = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const NavBar = () => {
     userDispatch({ type: "logout", payload: "" });
     await cookies.remove("token");
     localStorage.removeItem("token");
+    showToast("success", "Logged out successfully!");
     navigate("/");
   };
 

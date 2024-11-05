@@ -26,6 +26,7 @@ import { CalendarIcon, SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
 import { useUserContext } from "../contexts/userContext";
 import { FaEdit, FaEllipsisV, FaTrash } from "react-icons/fa";
+import { showToast } from "../services/showToast";
 
 function EventsMy() {
   const { userState } = useUserContext();
@@ -71,8 +72,10 @@ function EventsMy() {
 
       // Optionally dispatch an action to update context state if needed
       eventsDispatch({ type: "deleteEvent", payload: eventId }); // Adjust payload as needed
-    } catch (err) {
-      console.error("Error deleting event:", err);
+    } catch (err: any) {
+      showToast("error", err.message);
+    } finally {
+      showToast("success", "Event deleted successfully :)");
     }
   };
 

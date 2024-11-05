@@ -33,6 +33,7 @@ import { MdOutlineCalendarToday } from "react-icons/md";
 import { useCategoriesContext } from "../contexts/categoriesContext";
 import { category } from "../types/category";
 import { useUserContext } from "../contexts/userContext";
+import { showToast } from "../services/showToast";
 
 interface attendees {
   userName: string;
@@ -143,8 +144,14 @@ function EventDetails() {
       });
 
       setUserEventScore(response.data);
-    } catch (error) {
-      console.error("Failed to update score", error);
+    } catch (error: any) {
+      if (error.response && error.response.status === 401) {
+        showToast(
+          "error",
+          "You must be logged in to update your score.",
+          "Login Required"
+        );
+      }
       setError("Failed to update score. Please try again.");
     } finally {
       setLoading(false);
