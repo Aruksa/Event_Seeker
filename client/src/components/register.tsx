@@ -4,6 +4,8 @@ import {
   AlertTitle,
   Button,
   Flex,
+  FormControl,
+  FormErrorMessage,
   Heading,
   HStack,
   Input,
@@ -15,6 +17,7 @@ import { createUser } from "../services/createUser";
 import { Link } from "react-router-dom";
 import Cookies from "universal-cookie";
 import { useUserContext } from "../contexts/userContext";
+import { showToast } from "../services/showToast";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -25,8 +28,16 @@ const SignUp = () => {
   const cookies = new Cookies();
   const { userDispatch } = useUserContext();
 
-  const [error, setError] = useState("");
-  const [isError, setIsError] = useState(false);
+  const [errors, setErrors] = useState<{
+    name: string;
+    email: string;
+    password: string;
+    general?: string;
+  }>({
+    name: "",
+    email: "",
+    password: "",
+  });
 
   const isEmailValid = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -52,21 +63,40 @@ const SignUp = () => {
         });
         console.log("Signup successful:", response);
         setFormData({ name: "", email: "", password: "" });
+        showToast("success", "Registration successful!");
       } catch (err: any) {
-        setError(err.message);
-        setIsError(true);
+        setErrors({ ...errors, general: err.message });
+        showToast("error", err.message, "This email is already in use.");
       }
     } else {
-      setError("Please fill in all fields correctly.");
-      setIsError(true);
+      setErrors({
+        name: formData.name.trim() === "" ? "Name is required" : "",
+        email: !isEmailValid(formData.email) ? "Invalid email address" : "",
+        password: !isPasswordValid(formData.password)
+          ? "Password must be at least 8 characters"
+          : "",
+      });
+      // showToast("error", "Please input all fields correctly.", "Register");
     }
   };
 
+  // const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   setFormData({ ...formData, [event.target.id]: event.target.value });
+  //   if (isError) {
+  //     setError("");
+  //     setIsError(false);
+  //   }
+  // };
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [event.target.id]: event.target.value });
-    if (isError) {
-      setError("");
-      setIsError(false);
+    const { id, value } = event.target;
+    setFormData({ ...formData, [id]: value });
+
+    if (id === "name" && errors.name) {
+      setErrors({ ...errors, name: "" });
+    } else if (id === "email" && errors.email) {
+      setErrors({ ...errors, email: "" });
+    } else if (id === "password" && errors.password) {
+      setErrors({ ...errors, password: "" });
     }
   };
 
@@ -77,34 +107,46 @@ const SignUp = () => {
           Sign up
         </Heading>
         <Stack padding="10px" spacing={7} boxSize={450}>
-          {isError && (
+          {/* {errors.general && (
             <Alert borderRadius={10} status="error">
               <AlertIcon />
-              <AlertTitle>{error}</AlertTitle>
+              <AlertTitle>{errors.general}</AlertTitle>
             </Alert>
-          )}
-          <Input
-            id="name"
-            value={formData.name}
-            onChange={handleChange}
-            variant="outline"
-            placeholder="Name"
-          />
-          <Input
-            id="email"
-            value={formData.email}
-            onChange={handleChange}
-            variant="outline"
-            placeholder="Email"
-          />
-          <Input
-            id="password"
-            value={formData.password}
-            onChange={handleChange}
-            type="password"
-            variant="outline"
-            placeholder="Password"
-          />
+          )} */}
+
+          <FormControl isInvalid={!!errors.name}>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={handleChange}
+              variant="outline"
+              placeholder="Name"
+            />
+            <FormErrorMessage>{errors.name}</FormErrorMessage>
+          </FormControl>
+
+          <FormControl isInvalid={!!errors.email}>
+            <Input
+              id="email"
+              value={formData.email}
+              onChange={handleChange}
+              variant="outline"
+              placeholder="Email"
+            />
+            <FormErrorMessage>{errors.email}</FormErrorMessage>
+          </FormControl>
+
+          <FormControl isInvalid={!!errors.password}>
+            <Input
+              id="password"
+              value={formData.password}
+              onChange={handleChange}
+              type="password"
+              variant="outline"
+              placeholder="Password"
+            />
+            <FormErrorMessage>{errors.password}</FormErrorMessage>
+          </FormControl>
           <Button
             type="submit"
             bg="#e83e6b"

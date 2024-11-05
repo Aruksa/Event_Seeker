@@ -21,6 +21,8 @@ import {
   IconButton,
   Flex,
   Heading,
+  FormErrorMessage,
+  FormControl,
 } from "@chakra-ui/react";
 import { CloseIcon } from "@chakra-ui/icons";
 import { category } from "../types/category";
@@ -33,6 +35,85 @@ const EventPost = () => {
   const { userState } = useUserContext();
   const { categories } = useCategoriesContext();
   const { eventsState, eventsDispatch } = useEventsContext();
+
+  const [errors, setErrors] = useState({
+    title: "",
+    venue: "",
+    city: "",
+    country: "",
+    description: "",
+    mode: "",
+    thumbnail: "",
+    startDate: "",
+    endDate: "",
+    categories: "",
+  });
+
+  // FORM VALIDATION FUNCTION TO UPDATE ERROR STATE
+  const validateForm = () => {
+    const newErrors: typeof errors = {
+      title: "",
+      venue: "",
+      city: "",
+      country: "",
+      description: "",
+      mode: "",
+      thumbnail: "",
+      startDate: "",
+      endDate: "",
+      categories: "",
+    };
+
+    let isValid = true;
+
+    // CHECK EACH FIELD AND ADD ERROR MESSAGES IF NECESSARY
+    if (!newEvent.title.trim()) {
+      newErrors.title = "Title cannot be empty";
+      isValid = false;
+    }
+    if (!newEvent.venue.trim()) {
+      newErrors.venue = "Venue cannot be empty";
+      isValid = false;
+    }
+    if (!newEvent.city.trim()) {
+      newErrors.city = "City cannot be empty";
+      isValid = false;
+    }
+    if (!newEvent.country) {
+      newErrors.country = "Country cannot be empty";
+      isValid = false;
+    }
+    if (!newEvent.description.trim()) {
+      newErrors.description = "Description cannot be empty";
+      isValid = false;
+    }
+    if (!newEvent.mode) {
+      newErrors.mode = "Mode cannot be empty";
+      isValid = false;
+    }
+    if (!newEvent.thumbnail) {
+      newErrors.thumbnail = "Thumbnail cannot be empty";
+      isValid = false;
+    }
+    if (!newEvent.startDate) {
+      newErrors.startDate = "Start Date cannot be empty";
+      isValid = false;
+    }
+    if (!newEvent.endDate) {
+      newErrors.endDate = "End Date cannot be empty";
+      isValid = false;
+    } else if (newEvent.startDate && newEvent.endDate < newEvent.startDate) {
+      newErrors.endDate = "End date cannot be before start date";
+      isValid = false;
+    }
+    if (newEvent.categories.length === 0) {
+      newErrors.categories = "At least one category must be selected";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -53,6 +134,7 @@ const EventPost = () => {
 
   const handleImageUpload = (url: string) => {
     setNewEvent({ ...newEvent, thumbnail: url });
+    setIsErrorVisible(false);
   };
 
   const removeImage = () => {
@@ -63,7 +145,6 @@ const EventPost = () => {
     return now.toISOString().slice(0, 16); //'YYYY-MM-DDTHH:MM'
   };
 
-  const [errorMessage, setErrorMessage] = useState(""); // State for error message
   const [isErrorVisible, setIsErrorVisible] = useState(false); // State for controlling error visibility
 
   const categoryOptions = categories.map((category) => ({
@@ -83,23 +164,11 @@ const EventPost = () => {
     { value: "Hybrid", label: "Hybrid" },
   ];
 
-  const isFormValid =
-    newEvent.title.trim() !== "" &&
-    newEvent.venue.trim() !== "" &&
-    newEvent.city.trim() !== "" &&
-    newEvent.country.trim() !== "" &&
-    newEvent.description.trim() !== "" &&
-    newEvent.mode.trim() !== "" &&
-    newEvent.thumbnail.trim() !== "" &&
-    newEvent.startDate.trim() !== "" &&
-    newEvent.endDate.trim() !== "" &&
-    newEvent.categories.length > 0;
-
   const handleAddEvent = (e: FormEvent) => {
     e.preventDefault();
 
     // Only proceed with submission if the form is valid
-    if (isFormValid) {
+    if (validateForm()) {
       axios
         .post("http://127.0.0.1:3000/api/events", newEvent, {
           headers: { "x-auth-token": userState.token },
@@ -110,8 +179,19 @@ const EventPost = () => {
             type: "getEvents",
             payload: [...eventsState.events, res.data],
           });
-          setErrorMessage(""); // Clear error message on successful submission
           setIsErrorVisible(false); // Hide error popup
+          setErrors({
+            title: "",
+            venue: "",
+            city: "",
+            country: "",
+            description: "",
+            mode: "",
+            thumbnail: "",
+            startDate: "",
+            endDate: "",
+            categories: "",
+          }); // RESET ERRORS ON SUCCESS
           navigate("/");
         })
         .catch((error: any) => {
@@ -122,7 +202,7 @@ const EventPost = () => {
         });
     } else {
       // If not valid, show error message
-      setErrorMessage("Please fill in all fields before submitting!"); // Set error message
+
       setIsErrorVisible(true); // Show the error popup
     }
   };
@@ -132,7 +212,18 @@ const EventPost = () => {
   ) => {
     setNewEvent({ ...newEvent, [e.target.id]: e.target.value });
     if (isErrorVisible) {
-      setErrorMessage(""); // Clear error message when user starts typing
+      setErrors({
+        title: "",
+        venue: "",
+        city: "",
+        country: "",
+        description: "",
+        mode: "",
+        thumbnail: "",
+        startDate: "",
+        endDate: "",
+        categories: "",
+      }); // Clear error message when user starts typing
       setIsErrorVisible(false); // Hide error popup when typing
     }
   };
@@ -142,6 +233,7 @@ const EventPost = () => {
       ...newEvent,
       categories: selectedOptions.map((item: any) => item.value) || [],
     }); // Update categories in newEvent
+    setIsErrorVisible(false);
     setIsMenuOpen(true); // Keep the menu open
   };
 
@@ -150,6 +242,7 @@ const EventPost = () => {
       ...newEvent,
       mode: selectedOption.value, // Update mode in newEvent
     });
+    setIsErrorVisible(false);
   };
   // console.log(newEvent);
 
@@ -212,104 +305,119 @@ const EventPost = () => {
           <Box marginLeft={{ base: "0", md: "50px" }}>
             <form onSubmit={handleAddEvent}>
               <Stack padding={3} spacing={4}>
-                {isErrorVisible && (
-                  <Alert borderRadius={10} status="error">
-                    <AlertIcon />
-                    <AlertTitle>{errorMessage}</AlertTitle>
-                  </Alert>
-                )}
                 <Heading>Create a New Event</Heading>
 
-                <label htmlFor="title" style={{ fontSize: "1.1rem" }}>
-                  Title
-                </label>
-                <Input
-                  id="title"
-                  type="text"
-                  variant="outline"
-                  value={newEvent.title}
-                  onChange={handleChange}
-                  backgroundColor="white"
-                  boxShadow="md"
-                />
+                <FormControl isInvalid={!!errors.title && isErrorVisible}>
+                  <label htmlFor="title" style={{ fontSize: "1.1rem" }}>
+                    Title
+                  </label>
+                  <Input
+                    id="title"
+                    type="text"
+                    variant="outline"
+                    value={newEvent.title}
+                    onChange={handleChange}
+                    backgroundColor="white"
+                    boxShadow="md"
+                  />
+                  <FormErrorMessage>{errors.title}</FormErrorMessage>
+                </FormControl>
 
-                <label htmlFor="venue">Venue</label>
-                <Input
-                  id="venue"
-                  type="text"
-                  variant="outline"
-                  value={newEvent.venue}
-                  placeholder="Insert venue..."
-                  onChange={handleChange}
-                  backgroundColor="white"
-                  boxShadow="md"
-                />
+                <FormControl isInvalid={!!errors.venue && isErrorVisible}>
+                  <label htmlFor="venue">Venue</label>
+                  <Input
+                    id="venue"
+                    type="text"
+                    variant="outline"
+                    value={newEvent.venue}
+                    placeholder="Insert venue..."
+                    onChange={handleChange}
+                    backgroundColor="white"
+                    boxShadow="md"
+                  />
+                  <FormErrorMessage>{errors.venue}</FormErrorMessage>
+                </FormControl>
 
                 <Grid templateColumns="1fr 1fr" gap={3}>
                   <Box>
-                    <label htmlFor="city">City</label>
-                    <Input
-                      id="city"
-                      type="text"
-                      variant="outline"
-                      value={newEvent.city}
-                      placeholder="City"
-                      onChange={handleChange}
-                      backgroundColor="white"
-                      boxShadow="md"
-                    />
+                    <FormControl isInvalid={!!errors.city && isErrorVisible}>
+                      <label htmlFor="city">City</label>
+                      <Input
+                        id="city"
+                        type="text"
+                        variant="outline"
+                        value={newEvent.city}
+                        placeholder="City"
+                        onChange={handleChange}
+                        backgroundColor="white"
+                        boxShadow="md"
+                      />
+                      <FormErrorMessage>{errors.city}</FormErrorMessage>
+                    </FormControl>
                   </Box>
                   <Box>
-                    <label>Country</label>
-                    <Select
-                      options={countryOptions}
-                      value={countryOptions.find(
-                        (option) => option.value === newEvent.country
-                      )}
-                      onChange={handleCountryChange}
-                      placeholder="Country"
-                      styles={{
-                        control: (base) => ({
-                          ...base,
-                          backgroundColor: "white",
-                          borderColor: "#CBD5E0",
-                          minHeight: "40px",
-                          boxShadow: "md",
-                        }),
-                      }}
-                    />
+                    <FormControl isInvalid={!!errors.country && isErrorVisible}>
+                      <label>Country</label>
+                      <Select
+                        options={countryOptions}
+                        value={countryOptions.find(
+                          (option) => option.value === newEvent.country
+                        )}
+                        onChange={handleCountryChange}
+                        placeholder="Country"
+                        styles={{
+                          control: (base) => ({
+                            ...base,
+                            backgroundColor: "white",
+                            borderColor: "#CBD5E0",
+                            minHeight: "40px",
+                            boxShadow: "md",
+                          }),
+                        }}
+                      />
+                      <FormErrorMessage>{errors.country}</FormErrorMessage>
+                    </FormControl>
                   </Box>
                 </Grid>
 
                 <Grid templateColumns="1fr 1fr" gap={3}>
                   <Box>
-                    <label htmlFor="mode">Mode</label>
-                    <Select
-                      options={modeOptions}
-                      onChange={handleModeChange}
-                      placeholder="Select Mode"
-                      styles={{
-                        control: (base) => ({
-                          ...base,
-                          backgroundColor: "white",
-                          borderColor: "#CBD5E0",
-                          minHeight: "40px",
-                          boxShadow: "md",
-                        }),
-                      }}
-                    />
+                    <FormControl isInvalid={!!errors.mode && isErrorVisible}>
+                      <label htmlFor="mode">Mode</label>
+                      <Select
+                        options={modeOptions}
+                        onChange={handleModeChange}
+                        placeholder="Select Mode"
+                        styles={{
+                          control: (base) => ({
+                            ...base,
+                            backgroundColor: "white",
+                            borderColor: "#CBD5E0",
+                            minHeight: "40px",
+                            boxShadow: "md",
+                          }),
+                        }}
+                      />
+                      <FormErrorMessage>{errors.mode}</FormErrorMessage>
+                    </FormControl>
                   </Box>
                   <Box>
-                    <Flex alignItems="center">
-                      <label
-                        htmlFor="thumbnail"
-                        style={{ fontSize: "1.1rem", marginRight: "5px" }}
-                      >
-                        Thumbnail
-                      </label>
-                      <IoImageOutline color="gray.500" />
-                    </Flex>
+                    <FormControl
+                      isInvalid={!!errors.thumbnail && isErrorVisible}
+                    >
+                      <Flex alignItems="center">
+                        <label
+                          htmlFor="thumbnail"
+                          style={{ fontSize: "1.1rem", marginRight: "5px" }}
+                        >
+                          Thumbnail
+                        </label>
+                        <IoImageOutline color="gray.500" />
+                      </Flex>
+                      <FormErrorMessage>{errors.thumbnail}</FormErrorMessage>
+                    </FormControl>
                     <UploadWidget onUpload={handleImageUpload} />
+
                     {newEvent.thumbnail && (
                       <Box position="relative" mt={4}>
                         <Image
@@ -336,61 +444,74 @@ const EventPost = () => {
 
                 <Grid templateColumns="1fr 1fr" gap={3}>
                   <Box>
-                    <label htmlFor="startDate">Start Date</label>
-                    <Input
-                      id="startDate"
-                      type="datetime-local"
-                      variant="outline"
-                      value={newEvent.startDate}
-                      min={getCurrentDateTime()}
-                      onChange={handleChange}
-                      boxShadow="md"
-                    />
+                    <FormControl
+                      isInvalid={!!errors.startDate && isErrorVisible}
+                    >
+                      <label htmlFor="startDate">Start Date</label>
+                      <Input
+                        id="startDate"
+                        type="datetime-local"
+                        variant="outline"
+                        value={newEvent.startDate}
+                        min={getCurrentDateTime()}
+                        onChange={handleChange}
+                        boxShadow="md"
+                      />
+                      <FormErrorMessage>{errors.startDate}</FormErrorMessage>
+                    </FormControl>
                   </Box>
                   <Box>
-                    <label htmlFor="endDate">End Date</label>
-                    <Input
-                      id="endDate"
-                      type="datetime-local"
-                      variant="outline"
-                      value={newEvent.endDate}
-                      min={getCurrentDateTime()}
-                      onChange={handleChange}
-                      boxShadow="md"
-                    />
+                    <FormControl isInvalid={!!errors.endDate && isErrorVisible}>
+                      <label htmlFor="endDate">End Date</label>
+                      <Input
+                        id="endDate"
+                        type="datetime-local"
+                        variant="outline"
+                        value={newEvent.endDate}
+                        min={getCurrentDateTime()}
+                        onChange={handleChange}
+                        boxShadow="md"
+                      />
+                      <FormErrorMessage>{errors.endDate}</FormErrorMessage>
+                    </FormControl>
                   </Box>
                 </Grid>
+                <FormControl isInvalid={!!errors.categories && isErrorVisible}>
+                  <label>Categories</label>
+                  <Select
+                    isMulti
+                    options={categoryOptions}
+                    onChange={handleCategoryChange}
+                    onFocus={() => setIsMenuOpen(true)} // Open the menu on focus
+                    onBlur={() => setIsMenuOpen(false)} // Close the menu when focus is lost
+                    menuIsOpen={isMenuOpen} // Control the visibility of the menu
+                    placeholder="Select Categories"
+                    styles={{
+                      control: (base) => ({
+                        ...base,
+                        backgroundColor: "white",
+                        borderColor: "#CBD5E0",
+                        minHeight: "40px",
+                        boxShadow: "md",
+                      }),
+                    }}
+                  />
+                  <FormErrorMessage>{errors.categories}</FormErrorMessage>
+                </FormControl>
 
-                <label>Categories</label>
-                <Select
-                  isMulti
-                  options={categoryOptions}
-                  onChange={handleCategoryChange}
-                  onFocus={() => setIsMenuOpen(true)} // Open the menu on focus
-                  onBlur={() => setIsMenuOpen(false)} // Close the menu when focus is lost
-                  menuIsOpen={isMenuOpen} // Control the visibility of the menu
-                  placeholder="Select Categories"
-                  styles={{
-                    control: (base) => ({
-                      ...base,
-                      backgroundColor: "white",
-                      borderColor: "#CBD5E0",
-                      minHeight: "40px",
-                      boxShadow: "md",
-                    }),
-                  }}
-                />
-
-                <label htmlFor="description">Description</label>
-                <Textarea
-                  id="description"
-                  variant="outline"
-                  value={newEvent.description}
-                  placeholder="Description..."
-                  onChange={handleChange}
-                  backgroundColor="white"
-                  boxShadow="md"
-                />
+                <FormControl isInvalid={!!errors.description && isErrorVisible}>
+                  <label htmlFor="description">Description</label>
+                  <Textarea
+                    id="description"
+                    variant="outline"
+                    value={newEvent.description}
+                    placeholder="Description..."
+                    onChange={handleChange}
+                    backgroundColor="white"
+                    boxShadow="md"
+                  />
+                  <FormErrorMessage>{errors.description}</FormErrorMessage>
+                </FormControl>
                 <Button
                   type="submit"
                   colorScheme=""

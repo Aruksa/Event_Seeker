@@ -5,7 +5,7 @@ const { toast } = createStandaloneToast();
 export const showToast = (
   status: "success" | "error" | "loading",
   description: string,
-  title: string
+  title?: string
 ) => {
   toast({
     title: title,
