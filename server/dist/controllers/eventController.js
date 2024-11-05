@@ -16,6 +16,7 @@ exports.getCategories = exports.updateEvent = exports.deleteEvent = exports.getE
 const sequelize_1 = require("sequelize");
 const index_1 = __importDefault(require("../models/index"));
 const sequelize_2 = require("sequelize");
+const elasticSearch_1 = __importDefault(require("../config/elasticSearch"));
 const _ = require("lodash");
 const eventModel = index_1.default.event;
 const eventCategoryModel = index_1.default.event_categories;
@@ -70,6 +71,22 @@ const postEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             categoryId: categoryId,
         }));
         yield eventCategoryModel.bulkCreate(eventCategoryData);
+        yield elasticSearch_1.default.index({
+            index: "events",
+            id: `${event.id}`,
+            body: {
+                title: event.title,
+                venue: event.venue,
+                city: event.city,
+                country: event.country,
+                description: event.description,
+                mode: event.mode,
+                thumbnail: event.thumbnail,
+                startDate: event.startDate,
+                endDate: event.endDate,
+                avg_attendance: 0,
+            },
+        });
         res.status(201).json(Object.assign(Object.assign({}, _.omit(event.dataValues, ["userId"])), { categories: categories }));
     }
     catch (error) {

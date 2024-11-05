@@ -5,6 +5,7 @@ import { Op, fn, col } from "sequelize";
 import { EventInstance } from "../models/event";
 import { EventCategoriesInstance } from "../models/event_categories";
 import { AttendanceInstance } from "../models/attendance";
+import client from "../config/elasticSearch";
 
 const _ = require("lodash");
 const eventModel = db.event as ModelStatic<EventInstance>;
@@ -79,6 +80,23 @@ export const postEvent = async (req: Request, res: Response) => {
     }));
 
     await eventCategoryModel.bulkCreate(eventCategoryData);
+
+    await client.index({
+      index: "events",
+      id: `${event.id}`,
+      body: {
+        title: event.title,
+        venue: event.venue,
+        city: event.city,
+        country: event.country,
+        description: event.description,
+        mode: event.mode,
+        thumbnail: event.thumbnail,
+        startDate: event.startDate,
+        endDate: event.endDate,
+        avg_attendance: 0,
+      },
+    });
 
     res.status(201).json({
       ..._.omit(event.dataValues, ["userId"]),

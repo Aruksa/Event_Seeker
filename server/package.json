@@ -10,9 +10,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@elastic/elasticsearch": "^8.15.1",
     "bcrypt": "^5.1.1",
     "config": "^3.3.12",
     "cors": "^2.8.5",
+    "elasticsearch": "^16.7.3",
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",

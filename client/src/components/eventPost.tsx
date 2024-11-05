@@ -26,6 +26,7 @@ import { CloseIcon } from "@chakra-ui/icons";
 import { category } from "../types/category";
 import { useNavigate } from "react-router-dom";
 import UploadWidget from "./uploadWidget";
+import { showToast } from "../services/showToast";
 
 const EventPost = () => {
   const navigate = useNavigate();
@@ -113,7 +114,12 @@ const EventPost = () => {
           setIsErrorVisible(false); // Hide error popup
           navigate("/");
         })
-        .catch((error) => console.log(error));
+        .catch((error: any) => {
+          showToast("error", error.message, "Error");
+        })
+        .finally(() => {
+          showToast("success", "Event posted successfully!", "Success");
+        });
     } else {
       // If not valid, show error message
       setErrorMessage("Please fill in all fields before submitting!"); // Set error message
