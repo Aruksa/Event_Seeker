@@ -98,7 +98,7 @@ export const getEvents = async (req: Request, res: Response) => {
   try {
     // Pagination parameters
     const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 5; // Default to 5 items per page
+    const limit = parseInt(req.query.limit as string) || 50; // Default to 50 items per page
     const offset = (page - 1) * limit;
 
     // Search and filter parameters

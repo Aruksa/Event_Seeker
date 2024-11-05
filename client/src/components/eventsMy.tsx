@@ -35,7 +35,7 @@ function EventsMy() {
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
 
-  // const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   const [isBottom, setIsBottom] = useState(false);
   let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -89,7 +89,7 @@ function EventsMy() {
     const handleSearch = async () => {
       try {
         if (!userState.token) return;
-        // setLoading(true);
+        setLoading(true);
         setPage(1);
         setHasMore(true); // Reset hasMore on a new search
         const result = await axios.get<event[]>(
@@ -101,7 +101,7 @@ function EventsMy() {
           }
         );
         setMyEvents(result.data);
-        // setLoading(false);
+        setLoading(false);
       } catch (error: any) {
         setError(error.message);
       }
@@ -257,7 +257,11 @@ function EventsMy() {
           <Heading paddingTop={4} paddingLeft={7}>
             My Events
           </Heading>
-          {myEvents.length === 0 ? (
+          {loading ? ( // Show loader while fetching data
+            <Box display="flex" justifyContent="center" padding={10}>
+              <Spinner size="lg" />
+            </Box>
+          ) : myEvents.length === 0 ? (
             <Box padding={10}>
               <Text>No Events Found</Text>
             </Box>

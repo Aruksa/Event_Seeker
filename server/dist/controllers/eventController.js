@@ -84,7 +84,7 @@ const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Pagination parameters
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 5; // Default to 5 items per page
+        const limit = parseInt(req.query.limit) || 50; // Default to 50 items per page
         const offset = (page - 1) * limit;
         // Search and filter parameters
         const search = req.query.search;

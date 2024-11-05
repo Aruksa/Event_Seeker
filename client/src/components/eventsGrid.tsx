@@ -42,7 +42,7 @@ function EventsGrid() {
 
   const events = eventsState.events;
 
-  // const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     hasMoreRef.current = hasMore;
@@ -51,14 +51,14 @@ function EventsGrid() {
   useEffect(() => {
     const handleSearch = async () => {
       try {
-        // setLoading(true);
+        setLoading(true);
         setPage(1);
         setHasMore(true); // Reset hasMore on a new search
         const result = await axios.get<event[]>(
           `http://localhost:3000/api/events?search=${input.search}&venue=${input.venue}&city=${input.city}&country=${input.country}&startDate=${input.startDate}&endDate=${input.endDate}&page=1`
         );
         eventsDispatch({ type: "getEvents", payload: result.data });
-        // setLoading(false);
+        setLoading(false);
         if (result.data.length === 0) {
           console.log("End of results reached."); // Debugging line
           setHasMore(false); // Set to false when no more data is available
@@ -217,7 +217,11 @@ function EventsGrid() {
           <Heading paddingTop={4} paddingLeft={10}>
             Discover Event Listings
           </Heading>
-          {events.length === 0 ? (
+          {loading ? ( // Show loader while fetching data
+            <Box display="flex" justifyContent="center" padding={10}>
+              <Spinner size="lg" />
+            </Box>
+          ) : events.length === 0 ? (
             <Box padding={10}>
               <Text>No Events Found</Text>
             </Box>
