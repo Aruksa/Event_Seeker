@@ -294,7 +294,7 @@ const getEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 index: "events",
                 id: eventId,
                 doc: {
-                    avg_attendance: parseFloat(avg_attendance).toFixed(2),
+                    avg_attendance: parseFloat(avg_attendance),
                 },
             });
         }

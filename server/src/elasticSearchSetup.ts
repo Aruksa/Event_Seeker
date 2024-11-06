@@ -17,7 +17,7 @@ const createEventIndex = async () => {
             startDate: { type: "date" },
             endDate: { type: "date" },
             userId: { type: "integer" },
-            avg_attendance: { type: "double" },
+            avg_attendance: { type: "float" },
           },
         },
       },

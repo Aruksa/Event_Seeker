@@ -31,7 +31,7 @@ const createEventIndex = () => __awaiter(void 0, void 0, void 0, function* () {
                         startDate: { type: "date" },
                         endDate: { type: "date" },
                         userId: { type: "integer" },
-                        avg_attendance: { type: "double" },
+                        avg_attendance: { type: "float" },
                     },
                 },
             },

@@ -12,8 +12,10 @@ import {
 } from "@chakra-ui/react";
 import { event } from "../types/event";
 import { MdOutlineStar } from "react-icons/md";
+import { FaVideo, FaLocationDot, FaVideoSlash } from "react-icons/fa6";
 
 import { useState } from "react";
+
 interface Props {
   event: event;
 }
@@ -56,17 +58,43 @@ function EventCard({ event }: Props) {
         </Box>
       )}
 
-      <Image
-        src={event.thumbnail}
-        width="100%" // Set width to fill the card
-        height="200px" // Adjust height to make it rectangular
-        objectFit="cover" // Maintain aspect ratio while filling the space
-        alt={event.title}
-        borderRadius="10px 10px 10px 10px" // Rounded top corners only
-        onLoad={() => setLoading(false)}
-        onError={() => setLoading(false)}
-        display={loading ? "none" : "block"}
-      />
+      <Box position="relative" width="100%" height="200px">
+        {event.mode && (
+          <Box
+            position="absolute"
+            top="8px"
+            left="8px"
+            p="2"
+            color="white"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            {event.mode === "Online" ? (
+              <Icon as={FaVideo} boxSize={5} />
+            ) : event.mode === "Physical" ? (
+              <Icon as={FaLocationDot} boxSize={5} />
+            ) : (
+              <HStack spacing={1}>
+                <Icon as={FaVideo} boxSize={5} />
+                <Icon as={FaLocationDot} boxSize={4} />
+              </HStack>
+            )}
+          </Box>
+        )}
+
+        <Image
+          src={event.thumbnail}
+          width="100%" // Set width to fill the card
+          height="200px" // Adjust height to make it rectangular
+          objectFit="cover" // Maintain aspect ratio while filling the space
+          alt={event.title}
+          borderRadius="10px 10px 10px 10px" // Rounded top corners only
+          onLoad={() => setLoading(false)}
+          onError={() => setLoading(false)}
+          display={loading ? "none" : "block"}
+        />
+      </Box>
       <CardBody>
         <Heading fontSize="lg">{event.title}</Heading>
         <HStack spacing={1} align="center">

@@ -280,7 +280,7 @@ const EventPost = () => {
                   }
                   alt="Placeholder"
                   borderRadius="md"
-                  maxHeight="50px"
+                  maxHeight="150px"
                   objectFit="cover"
                   marginRight="10px" // Add some space between the image and the message box
                 />
@@ -289,7 +289,7 @@ const EventPost = () => {
                   borderRadius="md"
                   padding="10px"
                   boxShadow="md"
-                  maxWidth="180px" // You can adjust this width as needed
+                  maxWidth="200px" // You can adjust this width as needed
                 >
                   Great Job! The event looks great!
                 </Box>
