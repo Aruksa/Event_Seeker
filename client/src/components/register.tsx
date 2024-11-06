@@ -2,6 +2,7 @@ import {
   Alert,
   AlertIcon,
   AlertTitle,
+  Box,
   Button,
   Flex,
   FormControl,
@@ -11,6 +12,7 @@ import {
   Input,
   Stack,
   Text,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { FormEvent, useState } from "react";
 import { createUser } from "../services/createUser";
@@ -100,73 +102,92 @@ const SignUp = () => {
     }
   };
 
+  const bgColor = useColorModeValue("gray.50", "gray.800");
+  const formBgColor = useColorModeValue("white", "gray.700");
+
   return (
-    <Flex alignItems="center" justifyContent="center">
-      <form onSubmit={handleSignup}>
-        <Heading padding="20px" fontSize="4xl" textAlign="center">
-          Sign up
-        </Heading>
-        <Stack padding="10px" spacing={7} boxSize={450}>
-          {/* {errors.general && (
-            <Alert borderRadius={10} status="error">
-              <AlertIcon />
-              <AlertTitle>{errors.general}</AlertTitle>
-            </Alert>
-          )} */}
+    <Flex
+      height="calc(100vh - 75px)"
+      width="full"
+      align="center"
+      justifyContent="center"
+      bg={bgColor}
+    >
+      <Box
+        bg={formBgColor}
+        p={8}
+        rounded="lg"
+        shadow="lg"
+        w="full"
+        maxW="md"
+        borderWidth={1}
+        borderColor={useColorModeValue("gray.200", "gray.700")}
+      >
+        <form onSubmit={handleSignup}>
+          <Stack spacing={6}>
+            <Heading
+              fontSize="3xl"
+              textAlign="center"
+              color={useColorModeValue("gray.800", "white")}
+            >
+              Sign up for an account!
+            </Heading>
+            <FormControl isInvalid={!!errors.name}>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={handleChange}
+                variant="outline"
+                placeholder="Name"
+              />
+              <FormErrorMessage>{errors.name}</FormErrorMessage>
+            </FormControl>
 
-          <FormControl isInvalid={!!errors.name}>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={handleChange}
-              variant="outline"
-              placeholder="Name"
-            />
-            <FormErrorMessage>{errors.name}</FormErrorMessage>
-          </FormControl>
+            <FormControl isInvalid={!!errors.email}>
+              <Input
+                id="email"
+                value={formData.email}
+                onChange={handleChange}
+                variant="outline"
+                placeholder="Email"
+              />
+              <FormErrorMessage>{errors.email}</FormErrorMessage>
+            </FormControl>
 
-          <FormControl isInvalid={!!errors.email}>
-            <Input
-              id="email"
-              value={formData.email}
-              onChange={handleChange}
-              variant="outline"
-              placeholder="Email"
-            />
-            <FormErrorMessage>{errors.email}</FormErrorMessage>
-          </FormControl>
-
-          <FormControl isInvalid={!!errors.password}>
-            <Input
-              id="password"
-              value={formData.password}
-              onChange={handleChange}
-              type="password"
-              variant="outline"
-              placeholder="Password"
-            />
-            <FormErrorMessage>{errors.password}</FormErrorMessage>
-          </FormControl>
-          <Button
-            type="submit"
-            bg="#e83e6b"
-            color={"white"}
-            _hover={{
-              bg: "#B91C48",
-            }}
-          >
-            Sign up
-          </Button>
-          <HStack justify="center">
-            <Text>Already a member?</Text>
-            <Link to="/login">
-              <Button variant="link" color="#00616E">
-                Log in
-              </Button>
-            </Link>
-          </HStack>
-        </Stack>
-      </form>
+            <FormControl isInvalid={!!errors.password}>
+              <Input
+                id="password"
+                value={formData.password}
+                onChange={handleChange}
+                type="password"
+                variant="outline"
+                placeholder="Password"
+              />
+              <FormErrorMessage>{errors.password}</FormErrorMessage>
+            </FormControl>
+            <Button
+              type="submit"
+              bg="#e83e6b"
+              color={"white"}
+              _hover={{
+                bg: "#B91C48",
+              }}
+            >
+              Sign up
+            </Button>
+            <HStack justify="center" spacing={1}>
+              <Text color={useColorModeValue("gray.600", "gray.400")}>
+                Already a member?
+              </Text>
+              <Link to="/login">
+                <Button variant="link" color="#00616E">
+                  Log in
+                </Button>
+              </Link>
+            </HStack>
+          </Stack>
+        </form>
+      </Box>
     </Flex>
   );
 };

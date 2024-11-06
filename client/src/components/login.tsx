@@ -2,7 +2,9 @@ import {
   Alert,
   AlertIcon,
   AlertTitle,
+  Box,
   Button,
+  Container,
   Flex,
   FormControl,
   FormErrorMessage,
@@ -11,6 +13,7 @@ import {
   Input,
   Stack,
   Text,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { FormEvent, useState } from "react";
 import { loginUser } from "../services/authUser";
@@ -92,63 +95,84 @@ const Login = () => {
     }
   };
 
-  return (
-    <Flex alignItems="center" justifyContent="center">
-      <form onSubmit={handleLogin}>
-        <Heading padding="20px" fontSize="4xl" textAlign="center">
-          Log in
-        </Heading>
-        <Stack padding="10px" spacing={7} boxSize={450}>
-          {/* {errors.general && (
-            <Alert borderRadius={10} status="error">
-              <AlertIcon />
-              <AlertTitle>{errors.general}</AlertTitle>
-            </Alert>
-          )} */}
-          <FormControl isInvalid={!!errors.email}>
-            <Input
-              id="email"
-              value={formData.email}
-              onChange={handleChange}
-              variant="outline"
-              placeholder="Email"
-            />
-            <FormErrorMessage>{errors.email}</FormErrorMessage>{" "}
-            {/* EMAIL ERROR */}
-          </FormControl>
+  const bgColor = useColorModeValue("gray.50", "gray.800");
+  const formBgColor = useColorModeValue("white", "gray.700");
 
-          <FormControl isInvalid={!!errors.password}>
-            <Input
-              id="password"
-              value={formData.password}
-              onChange={handleChange}
-              type="password"
-              variant="outline"
-              placeholder="Password"
-            />
-            <FormErrorMessage>{errors.password}</FormErrorMessage>{" "}
-            {/* PASSWORD ERROR */}
-          </FormControl>
-          <Button
-            type="submit"
-            bg="#e83e6b"
-            color={"white"}
-            _hover={{
-              bg: "#B91C48",
-            }}
-          >
-            Log in
-          </Button>
-          <HStack justify="center">
-            <Text>Not a member yet?</Text>
-            <Link to="/register">
-              <Button variant="link" color="#00616E">
-                Sign up
-              </Button>
-            </Link>
-          </HStack>
-        </Stack>
-      </form>
+  return (
+    <Flex
+      height="calc(100vh - 75px)"
+      width="full"
+      align="center"
+      justifyContent="center"
+      bg={bgColor}
+    >
+      <Box
+        bg={formBgColor}
+        p={8}
+        rounded="lg"
+        shadow="lg"
+        w="full"
+        maxW="md"
+        borderWidth={1}
+        borderColor={useColorModeValue("gray.200", "gray.700")}
+      >
+        <form onSubmit={handleLogin}>
+          <Stack spacing={6}>
+            <Heading
+              fontSize="3xl"
+              textAlign="center"
+              color={useColorModeValue("gray.800", "white")}
+            >
+              Log in to Your Account
+            </Heading>
+
+            <FormControl isInvalid={!!errors.email}>
+              <Input
+                id="email"
+                value={formData.email}
+                onChange={handleChange}
+                variant="filled"
+                placeholder="Email"
+              />
+              <FormErrorMessage>{errors.email}</FormErrorMessage>{" "}
+              {/* EMAIL ERROR */}
+            </FormControl>
+
+            <FormControl isInvalid={!!errors.password}>
+              <Input
+                id="password"
+                value={formData.password}
+                onChange={handleChange}
+                type="password"
+                variant="filled"
+                placeholder="Password"
+              />
+              <FormErrorMessage>{errors.password}</FormErrorMessage>{" "}
+              {/* PASSWORD ERROR */}
+            </FormControl>
+            <Button
+              type="submit"
+              bg="#e83e6b"
+              color={"white"}
+              _hover={{
+                bg: "#B91C48",
+              }}
+            >
+              Log in
+            </Button>
+            <HStack justify="center" spacing={1}>
+              <Text color={useColorModeValue("gray.600", "gray.400")}>
+                Not a member yet?
+              </Text>
+              <Link to="/register">
+                <Button variant="link" color="#00616E">
+                  Sign up
+                </Button>
+              </Link>
+            </HStack>
+          </Stack>
+        </form>
+      </Box>
     </Flex>
   );
 };
