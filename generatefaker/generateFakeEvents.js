@@ -60,7 +60,7 @@ const generateAndPostEvents = async () => {
   for (const token of userTokens) {
     console.log(`Generating events for user with token: ${token}`);
 
-    const events = Array.from({ length: 10 }, createFakeEvent);
+    const events = Array.from({ length: 100000 }, createFakeEvent);
     for (const event of events) {
       await postFakeEvent(event, token);
     }

@@ -18,6 +18,7 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
+  Flex,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import EventCard from "./eventCard";
@@ -283,36 +284,29 @@ function EventsMy() {
 
                   {/* Three-dot menu in the top right */}
                   <Box position="absolute" top="8px" right="8px">
-                    <Menu>
-                      <MenuButton
-                        as={IconButton}
-                        icon={<FaEllipsisV />}
-                        aria-label="Options"
-                        variant="outline"
+                    <HStack spacing={4}>
+                      {" "}
+                      {/* This will arrange the buttons horizontally */}
+                      <IconButton
+                        as={Link}
+                        to={`/events/edit/${event.id}`}
+                        aria-label="Edit"
+                        icon={<FaEdit />}
+                        variant="solid"
                         size="sm"
-                        bg="rgba(0, 0, 0, 0.6)"
-                        color="white"
-                        borderRadius="md" // Rounded edges for rectangle shape
-                        _hover={{ bg: "rgba(0, 0, 0, 0.8)" }}
-                        boxShadow="0px 0px 8px rgba(0, 0, 0, 0.3)"
+                        colorScheme="blue" // Set the color of the button
+                        _hover={{ bg: "rgba(0, 0, 0, 0.1)" }} // Subtle hover effect
                       />
-                      <MenuList>
-                        <MenuItem as={Link} to={`/events/edit/${event.id}`}>
-                          <HStack spacing={2}>
-                            <FaEdit />
-                            <span>Edit</span>
-                          </HStack>
-                        </MenuItem>
-                        <MenuItem
-                          onClick={() => handleDeleteEvent(event.id.toString())}
-                        >
-                          <HStack spacing={2}>
-                            <FaTrash />
-                            <span>Delete</span>
-                          </HStack>
-                        </MenuItem>
-                      </MenuList>
-                    </Menu>
+                      <IconButton
+                        onClick={() => handleDeleteEvent(event.id.toString())}
+                        aria-label="Delete"
+                        icon={<FaTrash />}
+                        variant="solid"
+                        size="sm"
+                        colorScheme="red" // Set the color of the delete button
+                        _hover={{ bg: "rgba(0, 0, 0, 0.1)" }} // Subtle hover effect
+                      />
+                    </HStack>
                   </Box>
                 </Box>
               ))}

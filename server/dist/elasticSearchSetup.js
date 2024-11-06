@@ -26,7 +26,6 @@ const createEventIndex = () => __awaiter(void 0, void 0, void 0, function* () {
                         venue: { type: "text" },
                         city: { type: "text" },
                         country: { type: "text" },
-                        description: { type: "text" },
                         mode: { type: "text" },
                         thumbnail: { type: "text" },
                         startDate: { type: "date" },

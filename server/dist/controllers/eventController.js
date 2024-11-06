@@ -8,6 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -16,6 +27,7 @@ exports.getCategories = exports.updateEvent = exports.deleteEvent = exports.getE
 const sequelize_1 = require("sequelize");
 const index_1 = __importDefault(require("../models/index"));
 const sequelize_2 = require("sequelize");
+const elasticSearch_1 = __importDefault(require("../config/elasticSearch"));
 const _ = require("lodash");
 const eventModel = index_1.default.event;
 const eventCategoryModel = index_1.default.event_categories;
@@ -70,22 +82,22 @@ const postEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             categoryId: categoryId,
         }));
         yield eventCategoryModel.bulkCreate(eventCategoryData);
-        // await client.index({
-        //   index: "events",
-        //   id: `${event.id}`,
-        //   body: {
-        //     title: event.title,
-        //     venue: event.venue,
-        //     city: event.city,
-        //     country: event.country,
-        //     description: event.description,
-        //     mode: event.mode,
-        //     thumbnail: event.thumbnail,
-        //     startDate: event.startDate,
-        //     endDate: event.endDate,
-        //     avg_attendance: 0,
-        //   },
-        // });
+        yield elasticSearch_1.default.index({
+            index: "events",
+            id: `${event.id}`,
+            body: {
+                title: event.title,
+                venue: event.venue,
+                city: event.city,
+                country: event.country,
+                mode: event.mode,
+                thumbnail: event.thumbnail,
+                startDate: event.startDate,
+                endDate: event.endDate,
+                avg_attendance: 0,
+                userId: userId,
+            },
+        });
         res.status(201).json(Object.assign(Object.assign({}, _.omit(event.dataValues, ["userId"])), { categories: categories }));
     }
     catch (error) {
@@ -98,71 +110,104 @@ const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Pagination parameters
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 50; // Default to 50 items per page
+        const limit = parseInt(req.query.limit) || 10; // Default to 50 items per page
         const offset = (page - 1) * limit;
-        // Search and filter parameters
         const search = req.query.search;
         const city = req.query.city;
         const country = req.query.country;
         const venue = req.query.venue;
         const startDate = req.query.startDate;
         const endDate = req.query.endDate;
-        const whereClause = {};
-        if (search) {
-            whereClause.title = { [sequelize_2.Op.iLike]: `%${search}%` };
-        }
-        if (venue) {
-            whereClause.venue = { [sequelize_2.Op.iLike]: `%${venue}%` };
-        }
-        if (city) {
-            whereClause.city = { [sequelize_2.Op.iLike]: `%${city}%` };
-        }
-        if (country) {
-            whereClause.country = { [sequelize_2.Op.iLike]: `%${country}%` };
-        }
-        if (startDate && endDate) {
-            whereClause.startDate = { [sequelize_2.Op.between]: [startDate, endDate] };
-        }
-        else if (startDate) {
-            whereClause.startDate = { [sequelize_2.Op.gte]: startDate }; // Filter events from start date onwards
-        }
-        else if (endDate) {
-            whereClause.startDate = { [sequelize_2.Op.lte]: endDate }; // Filter events up to end date
-        }
-        if (userId) {
-            whereClause.userId = userId; // Assuming events have a `userId` field for ownership
-        }
-        //Fetch paginated events with filters applied and avg_attendance
-        const events = yield eventModel.findAll({
-            attributes: [
-                "id",
-                "title",
-                "venue",
-                "city",
-                "country",
-                "description",
-                "mode",
-                "thumbnail",
-                "startDate",
-                "endDate",
-                // [fn("AVG", col("attendances.attendance_type")), "avg_attendance"],
-                [
-                    (0, sequelize_2.fn)("COALESCE", (0, sequelize_2.fn)("ROUND", (0, sequelize_2.fn)("AVG", (0, sequelize_2.col)("attendances.attendance_type")), 2), 0),
-                    "avg_attendance",
-                ],
-            ],
-            where: whereClause,
-            include: [
-                {
-                    model: index_1.default.attendance,
-                    attributes: [],
+        // const whereClause: any = {};
+        // if (search) {
+        //   whereClause.title = { [Op.iLike]: `%${search}%` };
+        // }
+        // if (venue) {
+        //   whereClause.venue = { [Op.iLike]: `%${venue}%` };
+        // }
+        // if (city) {
+        //   whereClause.city = { [Op.iLike]: `%${city}%` };
+        // }
+        // if (country) {
+        //   whereClause.country = { [Op.iLike]: `%${country}%` };
+        // }
+        // if (startDate && endDate) {
+        //   whereClause.startDate = { [Op.between]: [startDate, endDate] };
+        // } else if (startDate) {
+        //   whereClause.startDate = { [Op.gte]: startDate };
+        // } else if (endDate) {
+        //   whereClause.startDate = { [Op.lte]: endDate };
+        // }
+        // if (userId) {
+        //   whereClause.userId = userId;
+        // }
+        // const events = await eventModel.findAll({
+        //   attributes: [
+        //     "id",
+        //     "title",
+        //     "venue",
+        //     "city",
+        //     "country",
+        //     "description",
+        //     "mode",
+        //     "thumbnail",
+        //     "startDate",
+        //     "endDate",
+        //     [
+        //       fn(
+        //         "COALESCE",
+        //         fn("ROUND", fn("AVG", col("attendances.attendance_type")), 2),
+        //         0
+        //       ),
+        //       "avg_attendance",
+        //     ],
+        //   ],
+        //   where: whereClause,
+        //   include: [
+        //     {
+        //       model: db.attendance as ModelStatic<Model>,
+        //       attributes: [],
+        //     },
+        //   ],
+        //   group: ["event.id"],
+        //   order: [["startDate", "ASC"]],
+        //   limit,
+        //   subQuery: false,
+        //   offset,
+        // });
+        const elasticQuery = {
+            index: "events",
+            from: offset,
+            size: limit,
+            body: {
+                query: {
+                    bool: {
+                        must: [
+                            { match_all: {} },
+                            ...(search ? [{ match_phrase_prefix: { title: search } }] : []),
+                            ...(venue ? [{ match_phrase_prefix: { venue } }] : []),
+                            ...(city ? [{ match: { city } }] : []),
+                            ...(country ? [{ match: { country } }] : []),
+                        ],
+                        filter: [
+                            ...(startDate && endDate
+                                ? [{ range: { startDate: { gte: startDate, lte: endDate } } }]
+                                : startDate
+                                    ? [{ range: { startDate: { gte: startDate } } }]
+                                    : endDate
+                                        ? [{ range: { startDate: { lte: endDate } } }]
+                                        : []),
+                            ...(userId ? [{ term: { userId: userId } }] : []),
+                        ],
+                    },
                 },
-            ],
-            group: ["event.id"],
-            order: [["startDate", "ASC"]],
-            limit,
-            subQuery: false,
-            offset,
+                sort: [{ startDate: { order: "asc" } }],
+            },
+        };
+        const { hits } = yield elasticSearch_1.default.search(elasticQuery);
+        const events = hits.hits.map((hit) => {
+            const _a = hit._source, { userId } = _a, eventData = __rest(_a, ["userId"]);
+            return Object.assign(Object.assign({}, eventData), { userId, id: parseInt(hit._id) });
         });
         res.status(200).json(events);
     }
@@ -244,6 +289,15 @@ const getEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             ? ((5 * going + 3 * interested + 1 * not_interested) /
                 totalResponses).toFixed(2)
             : "No Rating";
+        if (parseFloat(avg_attendance) != 0) {
+            yield elasticSearch_1.default.update({
+                index: "events",
+                id: eventId,
+                doc: {
+                    avg_attendance: parseFloat(avg_attendance).toFixed(2),
+                },
+            });
+        }
         res.status(200).json({
             event: event,
             categories: categories.map((category) => category.categoryId),
@@ -271,6 +325,10 @@ const deleteEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 .status(401)
                 .send("Event not found or user not authorized to delete this event!");
         }
+        yield elasticSearch_1.default.delete({
+            index: "events",
+            id: eventId,
+        });
         res.status(200).send("Deleted!");
     }
     catch (error) {
@@ -330,6 +388,22 @@ const updateEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             city: req.body.city,
             country: req.body.country,
             thumbnail: req.body.thumbnail,
+        });
+        // Update Elasticsearch index (for syncing with search results)
+        yield elasticSearch_1.default.update({
+            index: "events",
+            id: eventId,
+            doc: {
+                title: req.body.title || event.title,
+                description: req.body.description || event.description,
+                startDate: formattedStartDate,
+                endDate: formattedEndDate,
+                mode: req.body.mode || event.mode,
+                venue: req.body.venue || event.venue,
+                city: req.body.city || event.city,
+                country: req.body.country || event.country,
+                thumbnail: req.body.thumbnail || event.thumbnail,
+            },
         });
         res.status(200).json({
             updatedEvent: updatedEvent.dataValues,

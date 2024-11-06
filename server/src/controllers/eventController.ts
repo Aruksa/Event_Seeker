@@ -14,6 +14,20 @@ const eventCategoryModel =
 const attendanceModel = db.attendance as ModelStatic<AttendanceInstance>;
 const categoryModel = db.category as ModelStatic<Model>;
 
+interface EventForES {
+  id?: string;
+  title: string;
+  venue: string;
+  city: string;
+  country: string;
+  mode: string;
+  thumnail: string;
+  startDate: string;
+  endDate: string;
+  userId: number;
+  avg_attendance: number;
+}
+
 export const postEvent = async (req: Request, res: Response) => {
   try {
     const userId = req.user.id;
@@ -81,22 +95,22 @@ export const postEvent = async (req: Request, res: Response) => {
 
     await eventCategoryModel.bulkCreate(eventCategoryData);
 
-    // await client.index({
-    //   index: "events",
-    //   id: `${event.id}`,
-    //   body: {
-    //     title: event.title,
-    //     venue: event.venue,
-    //     city: event.city,
-    //     country: event.country,
-    //     description: event.description,
-    //     mode: event.mode,
-    //     thumbnail: event.thumbnail,
-    //     startDate: event.startDate,
-    //     endDate: event.endDate,
-    //     avg_attendance: 0,
-    //   },
-    // });
+    await client.index({
+      index: "events",
+      id: `${event.id}`,
+      body: {
+        title: event.title,
+        venue: event.venue,
+        city: event.city,
+        country: event.country,
+        mode: event.mode,
+        thumbnail: event.thumbnail,
+        startDate: event.startDate,
+        endDate: event.endDate,
+        avg_attendance: 0,
+        userId: userId,
+      },
+    });
 
     res.status(201).json({
       ..._.omit(event.dataValues, ["userId"]),
@@ -112,10 +126,9 @@ export const getEvents = async (req: Request, res: Response) => {
   try {
     // Pagination parameters
     const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 50; // Default to 50 items per page
+    const limit = parseInt(req.query.limit as string) || 10; // Default to 50 items per page
     const offset = (page - 1) * limit;
 
-    // Search and filter parameters
     const search = req.query.search as string;
     const city = req.query.city as string;
     const country = req.query.country as string;
@@ -123,67 +136,107 @@ export const getEvents = async (req: Request, res: Response) => {
     const startDate = req.query.startDate as string;
     const endDate = req.query.endDate as string;
 
-    const whereClause: any = {};
+    // const whereClause: any = {};
 
-    if (search) {
-      whereClause.title = { [Op.iLike]: `%${search}%` };
-    }
-    if (venue) {
-      whereClause.venue = { [Op.iLike]: `%${venue}%` };
-    }
-    if (city) {
-      whereClause.city = { [Op.iLike]: `%${city}%` };
-    }
-    if (country) {
-      whereClause.country = { [Op.iLike]: `%${country}%` };
-    }
-    if (startDate && endDate) {
-      whereClause.startDate = { [Op.between]: [startDate, endDate] };
-    } else if (startDate) {
-      whereClause.startDate = { [Op.gte]: startDate }; // Filter events from start date onwards
-    } else if (endDate) {
-      whereClause.startDate = { [Op.lte]: endDate }; // Filter events up to end date
-    }
+    // if (search) {
+    //   whereClause.title = { [Op.iLike]: `%${search}%` };
+    // }
+    // if (venue) {
+    //   whereClause.venue = { [Op.iLike]: `%${venue}%` };
+    // }
+    // if (city) {
+    //   whereClause.city = { [Op.iLike]: `%${city}%` };
+    // }
+    // if (country) {
+    //   whereClause.country = { [Op.iLike]: `%${country}%` };
+    // }
+    // if (startDate && endDate) {
+    //   whereClause.startDate = { [Op.between]: [startDate, endDate] };
+    // } else if (startDate) {
+    //   whereClause.startDate = { [Op.gte]: startDate };
+    // } else if (endDate) {
+    //   whereClause.startDate = { [Op.lte]: endDate };
+    // }
 
-    if (userId) {
-      whereClause.userId = userId; // Assuming events have a `userId` field for ownership
-    }
+    // if (userId) {
+    //   whereClause.userId = userId;
+    // }
 
-    //Fetch paginated events with filters applied and avg_attendance
-    const events = await eventModel.findAll({
-      attributes: [
-        "id",
-        "title",
-        "venue",
-        "city",
-        "country",
-        "description",
-        "mode",
-        "thumbnail",
-        "startDate",
-        "endDate",
-        // [fn("AVG", col("attendances.attendance_type")), "avg_attendance"],
-        [
-          fn(
-            "COALESCE",
-            fn("ROUND", fn("AVG", col("attendances.attendance_type")), 2),
-            0
-          ),
-          "avg_attendance",
-        ],
-      ],
-      where: whereClause,
-      include: [
-        {
-          model: db.attendance as ModelStatic<Model>,
-          attributes: [],
+    // const events = await eventModel.findAll({
+    //   attributes: [
+    //     "id",
+    //     "title",
+    //     "venue",
+    //     "city",
+    //     "country",
+    //     "description",
+    //     "mode",
+    //     "thumbnail",
+    //     "startDate",
+    //     "endDate",
+
+    //     [
+    //       fn(
+    //         "COALESCE",
+    //         fn("ROUND", fn("AVG", col("attendances.attendance_type")), 2),
+    //         0
+    //       ),
+    //       "avg_attendance",
+    //     ],
+    //   ],
+    //   where: whereClause,
+    //   include: [
+    //     {
+    //       model: db.attendance as ModelStatic<Model>,
+    //       attributes: [],
+    //     },
+    //   ],
+    //   group: ["event.id"],
+    //   order: [["startDate", "ASC"]],
+    //   limit,
+    //   subQuery: false,
+    //   offset,
+    // });
+
+    const elasticQuery: any = {
+      index: "events",
+      from: offset,
+      size: limit,
+      body: {
+        query: {
+          bool: {
+            must: [
+              { match_all: {} },
+              ...(search ? [{ match_phrase_prefix: { title: search } }] : []),
+              ...(venue ? [{ match_phrase_prefix: { venue } }] : []),
+              ...(city ? [{ match: { city } }] : []),
+              ...(country ? [{ match: { country } }] : []),
+            ],
+            filter: [
+              ...(startDate && endDate
+                ? [{ range: { startDate: { gte: startDate, lte: endDate } } }]
+                : startDate
+                ? [{ range: { startDate: { gte: startDate } } }]
+                : endDate
+                ? [{ range: { startDate: { lte: endDate } } }]
+                : []),
+              ...(userId ? [{ term: { userId: userId } }] : []),
+            ],
+          },
         },
-      ],
-      group: ["event.id"],
-      order: [["startDate", "ASC"]],
-      limit,
-      subQuery: false,
-      offset,
+        sort: [{ startDate: { order: "asc" } }],
+      },
+    };
+
+    const { hits } = await client.search(elasticQuery);
+
+    const events = hits.hits.map((hit) => {
+      const { userId, ...eventData } = hit._source as EventForES;
+      return {
+        ...eventData,
+        userId,
+        id: parseInt(hit._id!),
+      };
     });
 
     res.status(200).json(events);
@@ -277,6 +330,16 @@ export const getEvent = async (req: Request, res: Response) => {
           ).toFixed(2)
         : "No Rating";
 
+    if (parseFloat(avg_attendance) != 0) {
+      await client.update({
+        index: "events",
+        id: eventId,
+        doc: {
+          avg_attendance: parseFloat(avg_attendance).toFixed(2),
+        },
+      });
+    }
+
     res.status(200).json({
       event: event,
       categories: categories.map((category) => category.categoryId),
@@ -306,6 +369,11 @@ export const deleteEvent = async (req: Request, res: Response) => {
         .status(401)
         .send("Event not found or user not authorized to delete this event!");
     }
+
+    await client.delete({
+      index: "events",
+      id: eventId,
+    });
 
     res.status(200).send("Deleted!");
   } catch (error) {
@@ -371,6 +439,23 @@ export const updateEvent = async (req: Request, res: Response) => {
       city: req.body.city,
       country: req.body.country,
       thumbnail: req.body.thumbnail,
+    });
+
+    // Update Elasticsearch index (for syncing with search results)
+    await client.update({
+      index: "events",
+      id: eventId,
+      doc: {
+        title: req.body.title || event.title,
+        description: req.body.description || event.description,
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+        mode: req.body.mode || event.mode,
+        venue: req.body.venue || event.venue,
+        city: req.body.city || event.city,
+        country: req.body.country || event.country,
+        thumbnail: req.body.thumbnail || event.thumbnail,
+      },
     });
 
     res.status(200).json({
