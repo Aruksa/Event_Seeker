@@ -188,17 +188,30 @@ const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                             ...(venue ? [{ match_phrase_prefix: { venue } }] : []),
                             ...(city ? [{ match_phrase_prefix: { city } }] : []),
                             ...(country ? [{ match_phrase_prefix: { country } }] : []),
+                            ...(startDate ? [{ match: { startDate: startDate } }] : []),
+                            ...(endDate ? [{ match: { endDate: endDate } }] : []),
                         ],
-                        filter: [
-                            ...(startDate && endDate
-                                ? [{ range: { startDate: { gte: startDate, lte: endDate } } }]
-                                : startDate
-                                    ? [{ range: { startDate: { gte: startDate } } }]
-                                    : endDate
-                                        ? [{ range: { startDate: { lte: endDate } } }]
-                                        : []),
-                            ...(userId ? [{ term: { userId: userId } }] : []),
-                        ],
+                        filter: [...(userId ? [{ term: { userId: userId } }] : [])],
+                        // must: [
+                        //   { match_all: {} },
+                        //   ...(search ? [{ match_phrase_prefix: { title: search } }] : []),
+                        //   ...(venue ? [{ match_phrase_prefix: { venue } }] : []),
+                        //   ...(city ? [{ match_phrase_prefix: { city } }] : []),
+                        //   ...(country ? [{ match_phrase_prefix: { country } }] : []),
+                        //   ...(startDate || endDate
+                        //     ? [
+                        //         {
+                        //           range: {
+                        //             startDate: {
+                        //               ...(startDate ? { gte: startDate } : {}),
+                        //               ...(endDate ? { lte: endDate } : {}),
+                        //             },
+                        //           },
+                        //         },
+                        //       ]
+                        //     : []),
+                        //   ...(userId ? [{ term: { userId: userId } }] : []),
+                        // ],
                     },
                 },
                 sort: [{ startDate: { order: "asc" } }],
