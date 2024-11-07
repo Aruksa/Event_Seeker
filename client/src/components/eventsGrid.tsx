@@ -11,6 +11,8 @@ import {
   InputGroup,
   InputLeftElement,
   Input,
+  FormLabel,
+  Flex,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import EventCard from "./eventCard";
@@ -175,6 +177,7 @@ function EventsGrid() {
             value={input.city}
             onChange={(e) => setInput({ ...input, city: e.target.value })}
           />
+
           <Input
             placeholder="Country"
             size="sm"
@@ -182,7 +185,11 @@ function EventsGrid() {
             value={input.country}
             onChange={(e) => setInput({ ...input, country: e.target.value })}
           />
-          <InputGroup size="sm" maxWidth="190px">
+
+          <FormLabel color="gray.600" mb={0} minWidth="75px">
+            Start Date
+          </FormLabel>
+          <InputGroup size="sm" maxWidth="190px" ml={-8}>
             <InputLeftElement pointerEvents="none">
               <CalendarIcon color="gray.500" />
             </InputLeftElement>
@@ -196,7 +203,11 @@ function EventsGrid() {
               }
             />
           </InputGroup>
-          <InputGroup size="sm" maxWidth="190px">
+
+          <FormLabel color="gray.600" mb={0} minWidth="75px" ml={-5}>
+            End Date
+          </FormLabel>
+          <InputGroup size="sm" maxWidth="190px" ml={-10}>
             <InputLeftElement pointerEvents="none">
               <CalendarIcon color="gray.500" />
             </InputLeftElement>

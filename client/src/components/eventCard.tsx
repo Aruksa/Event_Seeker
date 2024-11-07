@@ -40,7 +40,7 @@ function EventCard({ event }: Props) {
       overflow="hidden"
       borderRadius="lg"
       width="350px"
-      height="300px"
+      height="385px"
       border="none"
       boxShadow="none"
     >
@@ -98,15 +98,22 @@ function EventCard({ event }: Props) {
       <CardBody>
         <Heading fontSize="lg">{event.title}</Heading>
         <HStack spacing={1} align="center">
-          <Icon as={MdOutlineStar} boxSize={6} color="black" mt={0.5} />
+          <Icon as={MdOutlineStar} boxSize={6} color="black" mt={0.5} ml={-1} />
           <Text fontSize="xl" color="gray.600">
-            {event.avg_attendance === 0
+            {event.avg_attendance === 0 || event.avg_attendance === null
               ? "No Rating"
               : `${event.avg_attendance}`}
           </Text>
         </HStack>
+        <HStack spacing={2} align="center">
+          <Icon as={FaLocationDot} color="gray.500" />
+          <Text fontSize="sm" color="gray.600">
+            {`${event.venue}, ${event.city}, ${event.country}`}
+          </Text>
+        </HStack>
+
         <Text>Start: {formatDate(event.startDate)}</Text>
-        {/* <Text>End: {formatDate(event.endDate)}</Text> */}
+        <Text>End: {formatDate(event.endDate)}</Text>
       </CardBody>
     </Card>
   );

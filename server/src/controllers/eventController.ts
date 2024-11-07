@@ -126,7 +126,7 @@ export const getEvents = async (req: Request, res: Response) => {
   try {
     // Pagination parameters
     const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10; // Default to 50 items per page
+    const limit = parseInt(req.query.limit as string) || 50; // Default to 50 items per page
     const offset = (page - 1) * limit;
 
     const search = req.query.search as string;
@@ -209,8 +209,8 @@ export const getEvents = async (req: Request, res: Response) => {
               { match_all: {} },
               ...(search ? [{ match_phrase_prefix: { title: search } }] : []),
               ...(venue ? [{ match_phrase_prefix: { venue } }] : []),
-              ...(city ? [{ match: { city } }] : []),
-              ...(country ? [{ match: { country } }] : []),
+              ...(city ? [{ match_phrase_prefix: { city } }] : []),
+              ...(country ? [{ match_phrase_prefix: { country } }] : []),
             ],
             filter: [
               ...(startDate && endDate

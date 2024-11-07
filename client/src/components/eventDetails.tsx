@@ -14,11 +14,6 @@ import {
   Heading,
   SimpleGrid,
   StackDivider,
-  List,
-  ListItem,
-  Alert,
-  AlertIcon,
-  AlertTitle,
   Badge,
   Wrap,
   WrapItem,
@@ -34,6 +29,7 @@ import { useCategoriesContext } from "../contexts/categoriesContext";
 import { category } from "../types/category";
 import { useUserContext } from "../contexts/userContext";
 import { showToast } from "../services/showToast";
+import { useNavigate } from "react-router-dom";
 
 interface attendees {
   userName: string;
@@ -78,6 +74,7 @@ function EventDetails() {
   const [event, setEvent] = useState<singleEvent>();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const [userEventScore, setUserEventScore] = useState<
     userEventScore | undefined
@@ -147,6 +144,7 @@ function EventDetails() {
     } catch (error: any) {
       if (error.response && error.response.status === 401) {
         showToast("error", "Please log in to continue!", error.response.data);
+        navigate("/login");
       }
       setError("Failed to update score. Please try again.");
     } finally {
@@ -310,7 +308,7 @@ function EventDetails() {
               direction={"column"}
               divider={<StackDivider borderColor="gray.200" />}
             >
-              <VStack spacing={{ base: 4, sm: 6 }} align="start">
+              <VStack spacing={{ base: 1, sm: 2 }} align="start">
                 <Box>
                   <Flex align="center" fontWeight={300} fontSize={"2xl"} mt={2}>
                     <MdOutlineCalendarToday style={{ marginRight: "0.5rem" }} />{" "}
@@ -336,14 +334,14 @@ function EventDetails() {
                 <Text fontSize={"lg"}>{event?.event.description}</Text>
               </VStack>
               <Box>
-                <Text
+                {/* <Text
                   fontSize={{ base: "16px", lg: "18px" }}
                   fontWeight={"500"}
                   textTransform={"uppercase"}
                   mb={"4"}
                 >
                   Categories
-                </Text>
+                </Text> */}
                 <Wrap spacing={2}>
                   {categories
                     .filter((category: category) =>
@@ -363,6 +361,38 @@ function EventDetails() {
                       </WrapItem>
                     ))}
                 </Wrap>
+                <Box mt={4}>
+                  {event?.event.attendees &&
+                    (() => {
+                      const goingAttendees = event.event.attendees
+                        .filter((attendee) => attendee.attendance_type === 5)
+                        .map((attendee) => attendee.userName);
+
+                      const attendeeCount = event?.going || 0;
+
+                      if (attendeeCount > 0) {
+                        return (
+                          <Text fontSize="xl" color="gray.600" mt={2}>
+                            {attendeeCount === 1
+                              ? `${goingAttendees[0]} is going to this event.`
+                              : attendeeCount <= 3
+                              ? `${goingAttendees.join(
+                                  ", "
+                                )} are going to this event.`
+                              : `${goingAttendees.slice(0, 3).join(", ")} and ${
+                                  attendeeCount - 3
+                                } others are going to this event.`}
+                          </Text>
+                        );
+                      } else {
+                        return (
+                          <Text fontSize="sm" color="gray.600" mt={2}>
+                            No attendees yet.
+                          </Text>
+                        );
+                      }
+                    })()}
+                </Box>
               </Box>
             </Stack>
           </Stack>
