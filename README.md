@@ -8,21 +8,18 @@ EventSeeker allows users to create, manage, and explore a wide array of events w
   Users can post their unique events with titles, start and end dates, descriptions, and categories.
 
   - Users can perform full CRUD operations on events they’ve created.
+  - Users can see who is attending these events.
   - Events include scoring details with a breakdown into categories: **Interested**, **Going**, and **Not Going**.
 
 - **Comprehensive Search and Filter**
 
-  - **General Event Search**: Users can search all available events using keywords, start and end dates, and categories.
+  - **General Event Search**: Users can search all available events using titles, start and end dates, and locations.
   - **User-Specific Event Search**: Users can filter their own events for easy management.
-  - Events can be sorted based on scores and other parameters for a personalized experience.
-
-- **Event Ratings and Reviews**  
-  Each event page displays ratings and individual reviews, allowing users to give feedback and see event popularity.
 
 - **Optimized Search and Infinite Scroll**
 
-  - **Elasticsearch Integration**: Built on a distributed database with Elasticsearch and PostgreSQL for scalable and efficient search capabilities, handling over 1 million indexed events.
-  - **Infinite Scroll**: Provides a seamless user experience by loading events gradually as users scroll.
+  - **Elasticsearch Integration**: Built using Elasticsearch and PostgreSQL for scalable and efficient search capabilities, handling over 1 million indexed events.
+  - **Infinite Scroll**: Provides a seamless user experience by loading 50 events per scroll.
   - **Debouncer**: Minimizes requests to the server, enhancing performance and reducing load.
 
 - **Scalable Database and Indexing**
@@ -37,7 +34,7 @@ EventSeeker allows users to create, manage, and explore a wide array of events w
 ## Future Enhancements
 
 - **WebSocket Integration**  
-  Potential to enhance real-time user experience by introducing WebSocket-based interactions to improve event posting speed, addressing the write speed limitations of Elasticsearch.
+  Potential to enhance the real-time user experience by introducing WebSocket-based interactions for event posting, because of the write speed disadvantage of Elasticsearch.
 
 - **Alternative Search and Analytics Solutions**  
   While Elasticsearch (based on Apache Lucene) is effective, exploring other distributed databases or search and analytics engines could further improve performance. Solutions with optimized sharding mechanisms may offer advantages in managing large-scale data and reducing latency.
