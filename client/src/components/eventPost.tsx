@@ -165,6 +165,7 @@ const EventPost = () => {
 
     // Only proceed with submission if the form is valid
     if (validateForm()) {
+      showToast("loading", "Please wait while we create this event!");
       axios
         .post("http://127.0.0.1:3000/api/events", newEvent, {
           headers: { "x-auth-token": userState.token },
