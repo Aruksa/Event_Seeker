@@ -11,11 +11,6 @@ EventSeeker allows users to create, manage, and explore a wide array of events w
   - Users can see who is attending these events.
   - Events include scoring details with a breakdown into categories: **Interested**, **Going**, and **Not Going**.
 
-- **Comprehensive Search and Filter**
-
-  - **General Event Search**: Users can search all available events using titles, start and end dates, and locations.
-  - **User-Specific Event Search**: Users can filter their own events for easy management.
-
 - **Optimized Search and Infinite Scroll**
 
   - **Elasticsearch Integration**: Built using Elasticsearch and PostgreSQL for scalable and efficient search capabilities, handling over 1 million indexed events.
@@ -25,7 +20,12 @@ EventSeeker allows users to create, manage, and explore a wide array of events w
 - **Scalable Database and Indexing**
 
   - PostgreSQL generates unique IDs for events, which are then indexed in Elasticsearch for rapid search and retrieval.
-  - **Data-Intensive Setup**: A preloaded dataset of 1 million events demonstrates the system's capability to handle extensive data loads.
+  - **Data-Intensive Setup**: A preloaded dataset of <span style="color: green;">**1 million**</span> events, generated with Faker.js, demonstrates the system's capability to handle extensive data loads.
+
+- **Comprehensive Search and Filter**
+
+  - **General Event Search**: Users can search all available events using titles, start and end dates, and locations.
+  - **User-Specific Event Search**: Users can filter their own events for easy management.
 
 - **Authentication and Interface**
   - Secure authentication handled with JWT tokens.
@@ -51,5 +51,8 @@ _The speed of my get operation without Elasticsearch_
 
 ![The speed of my get operation with Elasticsearch](./assets/elastic_get2.PNG)
 _The speed of my get operation with Elasticsearch_
+
+![Event Description](./assets/event_details.PNG)
+_Event Details_
 
 EventSeeker is designed to provide an efficient, engaging experience for users managing and attending events, with further improvements on the way.
