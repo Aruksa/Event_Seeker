@@ -16,7 +16,6 @@ exports.getCategories = exports.updateEvent = exports.deleteEvent = exports.getE
 const sequelize_1 = require("sequelize");
 const index_1 = __importDefault(require("../models/index"));
 const sequelize_2 = require("sequelize");
-const elasticSearch_1 = __importDefault(require("../config/elasticSearch"));
 const _ = require("lodash");
 const eventModel = index_1.default.event;
 const eventCategoryModel = index_1.default.event_categories;
@@ -293,15 +292,15 @@ const getEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             ? ((5 * going + 3 * interested + 1 * not_interested) /
                 totalResponses).toFixed(2)
             : "No Rating";
-        if (parseFloat(avg_attendance) != 0) {
-            yield elasticSearch_1.default.update({
-                index: "events",
-                id: eventId,
-                doc: {
-                    avg_attendance: parseFloat(avg_attendance),
-                },
-            });
-        }
+        // if (parseFloat(avg_attendance) != 0) {
+        //   await client.update({
+        //     index: "events",
+        //     id: eventId,
+        //     doc: {
+        //       avg_attendance: parseFloat(avg_attendance),
+        //     },
+        //   });
+        // }
         res.status(200).json({
             event: event,
             categories: categories.map((category) => category.categoryId),

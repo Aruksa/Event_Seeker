@@ -343,15 +343,15 @@ export const getEvent = async (req: Request, res: Response) => {
           ).toFixed(2)
         : "No Rating";
 
-    if (parseFloat(avg_attendance) != 0) {
-      await client.update({
-        index: "events",
-        id: eventId,
-        doc: {
-          avg_attendance: parseFloat(avg_attendance),
-        },
-      });
-    }
+    // if (parseFloat(avg_attendance) != 0) {
+    //   await client.update({
+    //     index: "events",
+    //     id: eventId,
+    //     doc: {
+    //       avg_attendance: parseFloat(avg_attendance),
+    //     },
+    //   });
+    // }
 
     res.status(200).json({
       event: event,

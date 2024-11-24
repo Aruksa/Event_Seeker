@@ -27,12 +27,16 @@ import { CloseIcon } from "@chakra-ui/icons";
 import { useNavigate, useParams } from "react-router-dom";
 import UploadWidget from "./uploadWidget";
 import { showToast } from "../services/showToast";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../state/store";
+import { updateEvent } from "../state/eventsSlice";
 
 const EventEdit = () => {
   const navigate = useNavigate();
   const { userState } = useUserContext();
 
-  const { eventsState, eventsDispatch } = useEventsContext();
+  const events = useSelector((state: RootState) => state.events);
+  const dispatch = useDispatch();
 
   const params = useParams();
 
@@ -174,7 +178,8 @@ const EventEdit = () => {
           newEvent,
           { headers: { "x-auth-token": userState.token } }
         );
-        eventsDispatch({ type: "updateEvent", payload: res.data });
+        dispatch(updateEvent(res.data));
+        // eventsDispatch({ type: "updateEvent", payload: res.data });
         showToast("success", "Event updated successfully!", "Success");
         navigate("/");
       } catch (error: any) {

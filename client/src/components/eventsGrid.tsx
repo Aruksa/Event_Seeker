@@ -19,9 +19,16 @@ import EventCard from "./eventCard";
 import { event } from "../types/event";
 import { CalendarIcon, SearchIcon } from "@chakra-ui/icons";
 import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../state/store";
+import { setEvents } from "../state/eventsSlice";
 
 function EventsGrid() {
-  const { eventsState, eventsDispatch } = useEventsContext();
+  // const { eventsState, eventsDispatch } = useEventsContext();
+
+  const events = useSelector((state: RootState) => state.events);
+  const dispatch = useDispatch();
+
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
 
@@ -42,7 +49,7 @@ function EventsGrid() {
   const [hasMore, setHasMore] = useState(true);
   const hasMoreRef = useRef(hasMore);
 
-  const events = eventsState.events;
+  // const events = eventsState.events;
 
   const [loading, setLoading] = useState(true);
 
@@ -59,7 +66,8 @@ function EventsGrid() {
         const result = await axios.get<event[]>(
           `http://localhost:3000/api/events?search=${input.search}&venue=${input.venue}&city=${input.city}&country=${input.country}&startDate=${input.startDate}&endDate=${input.endDate}&page=1`
         );
-        eventsDispatch({ type: "getEvents", payload: result.data });
+        dispatch(setEvents(result.data));
+        // eventsDispatch({ type: "getEvents", payload: result.data });
         setLoading(false);
         if (result.data.length === 0) {
           console.log("End of results reached."); // Debugging line
@@ -132,13 +140,13 @@ function EventsGrid() {
         } else {
           // setLoading(false);
           const uniqueEvents = [
-            ...eventsState.events,
+            ...events,
             ...result.data.filter(
-              (newEvent) =>
-                !eventsState.events.some((event) => event.id === newEvent.id)
+              (newEvent) => !events.some((event) => event.id === newEvent.id)
             ),
           ];
-          eventsDispatch({ type: "getEvents", payload: uniqueEvents });
+          dispatch(setEvents(uniqueEvents));
+          // eventsDispatch({ type: "getEvents", payload: uniqueEvents });
         }
       } catch (error: any) {
         setError(error.message);

@@ -25,12 +25,17 @@ import { CloseIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
 import UploadWidget from "./uploadWidget";
 import { showToast } from "../services/showToast";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../state/store";
+import { setEvents } from "../state/eventsSlice";
 
 const EventPost = () => {
   const navigate = useNavigate();
   const { userState } = useUserContext();
   const { categories } = useCategoriesContext();
-  const { eventsState, eventsDispatch } = useEventsContext();
+
+  const events = useSelector((state: RootState) => state.events);
+  const dispatch = useDispatch();
 
   const [errors, setErrors] = useState({
     title: "",
@@ -172,10 +177,11 @@ const EventPost = () => {
         })
         .then((res) => {
           setNewEvent(res.data);
-          eventsDispatch({
-            type: "getEvents",
-            payload: [...eventsState.events, res.data],
-          });
+          dispatch(setEvents([...events, res.data]));
+          // eventsDispatch({
+          //   type: "getEvents",
+          //   payload: [...eventsState.events, res.data],
+          // });
           setIsErrorVisible(false); // Hide error popup
           setErrors({
             title: "",

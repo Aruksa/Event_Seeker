@@ -11,6 +11,9 @@ import { EventsContext } from "./contexts/eventsContext";
 import { category } from "./types/category";
 import { CategoriesContext } from "./contexts/categoriesContext";
 
+import { Provider } from "react-redux";
+import { store } from "./state/store";
+
 const App = () => {
   const [userState, userDispatch] = useReducer(userReducer, { token: "" });
   // const [loading, setLoading] = useState<boolean>(true);
@@ -63,21 +66,23 @@ const App = () => {
     <UserContext.Provider value={{ userState, userDispatch }}>
       <EventsContext.Provider value={{ eventsState, eventsDispatch }}>
         <CategoriesContext.Provider value={{ categories, setCategories }}>
-          <Grid
-            templateAreas={{
-              base: `"nav" "main"`,
-              // lg: "nav nav" "aside main", //1024
-            }}
-          >
-            <GridItem area="nav">
-              <NavBar />
-            </GridItem>
-            <GridItem area="main">
-              <Outlet />
-              {error && <Text color="red.500">{error}</Text>}{" "}
-              {/* Display error if exists */}
-            </GridItem>
-          </Grid>
+          <Provider store={store}>
+            <Grid
+              templateAreas={{
+                base: `"nav" "main"`,
+                // lg: "nav nav" "aside main", //1024
+              }}
+            >
+              <GridItem area="nav">
+                <NavBar />
+              </GridItem>
+              <GridItem area="main">
+                <Outlet />
+                {error && <Text color="red.500">{error}</Text>}{" "}
+                {/* Display error if exists */}
+              </GridItem>
+            </Grid>
+          </Provider>
         </CategoriesContext.Provider>
       </EventsContext.Provider>
     </UserContext.Provider>

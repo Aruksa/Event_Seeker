@@ -28,10 +28,16 @@ import axios from "axios";
 import { useUserContext } from "../contexts/userContext";
 import { FaEdit, FaEllipsisV, FaTrash } from "react-icons/fa";
 import { showToast } from "../services/showToast";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../state/store";
+import { deleteEvent } from "../state/eventsSlice";
 
 function EventsMy() {
   const { userState } = useUserContext();
-  const { eventsDispatch } = useEventsContext();
+  // const { eventsDispatch } = useEventsContext();
+  const events = useSelector((state: RootState) => state.events);
+  const dispatch = useDispatch();
+
   const [myEvents, setMyEvents] = useState<event[]>([]);
 
   const [error, setError] = useState("");
@@ -71,8 +77,8 @@ function EventsMy() {
         prevEvents.filter((event) => event.id !== parseInt(eventId))
       );
 
-      // Optionally dispatch an action to update context state if needed
-      eventsDispatch({ type: "deleteEvent", payload: eventId }); // Adjust payload as needed
+      dispatch(deleteEvent(parseInt(eventId)));
+      // eventsDispatch({ type: "deleteEvent", payload: eventId });
     } catch (err: any) {
       showToast("error", err.message);
     } finally {
