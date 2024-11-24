@@ -40,7 +40,7 @@ EventSeeker allows users to create, manage, and explore a wide array of events w
   While Elasticsearch (based on Apache Lucene) is effective, exploring other distributed databases or search and analytics engines could further improve performance. Solutions with optimized sharding mechanisms may offer advantages in managing large-scale data and reducing latency.
 
 - **Improved Indexing Strategy**  
-  Instead of using standard primary keys for indexing, UUIDs, GUIDs, or timestamp-based IDs could be employed to prevent potential hotspots and ensure smoother, more efficient data distribution across shards.
+  Instead of using standard primary keys for indexing, UUIDs or GUIDs could be employed to prevent potential hotspots and ensure smoother, more efficient data distribution across shards.
 
 ## Performance Comparison
 
