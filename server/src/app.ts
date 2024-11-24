@@ -25,11 +25,11 @@ app.use("/api/elasticSearch", getAllEventsFromElastic);
 //self invoked function
 (async function bootstrap() {
   await db.sequelize.sync();
-  try {
-    await createEventIndex();
-  } catch (err) {
-    console.log(err);
-  } //sync() establishes connection to the datatbase and creates the tables if they don't exist
+  // try {
+  //   await createEventIndex();
+  // } catch (err) {
+  //   console.log(err);
+  // } //sync() establishes connection to the datatbase and creates the tables if they don't exist
   app.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
   });

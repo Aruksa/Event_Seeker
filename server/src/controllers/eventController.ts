@@ -95,22 +95,22 @@ export const postEvent = async (req: Request, res: Response) => {
 
     await eventCategoryModel.bulkCreate(eventCategoryData);
 
-    await client.index({
-      index: "events",
-      id: `${event.id}`,
-      body: {
-        title: event.title,
-        venue: event.venue,
-        city: event.city,
-        country: event.country,
-        mode: event.mode,
-        thumbnail: event.thumbnail,
-        startDate: event.startDate,
-        endDate: event.endDate,
-        avg_attendance: 0,
-        userId: userId,
-      },
-    });
+    // await client.index({
+    //   index: "events",
+    //   id: `${event.id}`,
+    //   body: {
+    //     title: event.title,
+    //     venue: event.venue,
+    //     city: event.city,
+    //     country: event.country,
+    //     mode: event.mode,
+    //     thumbnail: event.thumbnail,
+    //     startDate: event.startDate,
+    //     endDate: event.endDate,
+    //     avg_attendance: 0,
+    //     userId: userId,
+    //   },
+    // });
 
     res.status(201).json({
       ..._.omit(event.dataValues, ["userId"]),
@@ -136,121 +136,121 @@ export const getEvents = async (req: Request, res: Response) => {
     const startDate = req.query.startDate as string;
     const endDate = req.query.endDate as string;
 
-    // const whereClause: any = {};
+    const whereClause: any = {};
 
-    // if (search) {
-    //   whereClause.title = { [Op.iLike]: `%${search}%` };
-    // }
-    // if (venue) {
-    //   whereClause.venue = { [Op.iLike]: `%${venue}%` };
-    // }
-    // if (city) {
-    //   whereClause.city = { [Op.iLike]: `%${city}%` };
-    // }
-    // if (country) {
-    //   whereClause.country = { [Op.iLike]: `%${country}%` };
-    // }
-    // if (startDate && endDate) {
-    //   whereClause.startDate = { [Op.between]: [startDate, endDate] };
-    // } else if (startDate) {
-    //   whereClause.startDate = { [Op.gte]: startDate };
-    // } else if (endDate) {
-    //   whereClause.startDate = { [Op.lte]: endDate };
-    // }
+    if (search) {
+      whereClause.title = { [Op.iLike]: `%${search}%` };
+    }
+    if (venue) {
+      whereClause.venue = { [Op.iLike]: `%${venue}%` };
+    }
+    if (city) {
+      whereClause.city = { [Op.iLike]: `%${city}%` };
+    }
+    if (country) {
+      whereClause.country = { [Op.iLike]: `%${country}%` };
+    }
+    if (startDate && endDate) {
+      whereClause.startDate = { [Op.between]: [startDate, endDate] };
+    } else if (startDate) {
+      whereClause.startDate = { [Op.gte]: startDate };
+    } else if (endDate) {
+      whereClause.startDate = { [Op.lte]: endDate };
+    }
 
-    // if (userId) {
-    //   whereClause.userId = userId;
-    // }
+    if (userId) {
+      whereClause.userId = userId;
+    }
 
-    // const events = await eventModel.findAll({
-    //   attributes: [
-    //     "id",
-    //     "title",
-    //     "venue",
-    //     "city",
-    //     "country",
-    //     "description",
-    //     "mode",
-    //     "thumbnail",
-    //     "startDate",
-    //     "endDate",
+    const events = await eventModel.findAll({
+      attributes: [
+        "id",
+        "title",
+        "venue",
+        "city",
+        "country",
+        "description",
+        "mode",
+        "thumbnail",
+        "startDate",
+        "endDate",
 
-    //     [
-    //       fn(
-    //         "COALESCE",
-    //         fn("ROUND", fn("AVG", col("attendances.attendance_type")), 2),
-    //         0
-    //       ),
-    //       "avg_attendance",
-    //     ],
-    //   ],
-    //   where: whereClause,
-    //   include: [
-    //     {
-    //       model: db.attendance as ModelStatic<Model>,
-    //       attributes: [],
-    //     },
-    //   ],
-    //   group: ["event.id"],
-    //   order: [["startDate", "ASC"]],
-    //   limit,
-    //   subQuery: false,
-    //   offset,
-    // });
-
-    const elasticQuery: any = {
-      index: "events",
-      from: offset,
-      size: limit,
-      body: {
-        query: {
-          bool: {
-            must: [
-              { match_all: {} },
-              ...(search ? [{ match_phrase_prefix: { title: search } }] : []),
-              ...(venue ? [{ match_phrase_prefix: { venue } }] : []),
-              ...(city ? [{ match_phrase_prefix: { city } }] : []),
-              ...(country ? [{ match_phrase_prefix: { country } }] : []),
-              ...(startDate ? [{ match: { startDate: startDate } }] : []),
-              ...(endDate ? [{ match: { endDate: endDate } }] : []),
-            ],
-            filter: [...(userId ? [{ term: { userId: userId } }] : [])],
-            // must: [
-            //   { match_all: {} },
-            //   ...(search ? [{ match_phrase_prefix: { title: search } }] : []),
-            //   ...(venue ? [{ match_phrase_prefix: { venue } }] : []),
-            //   ...(city ? [{ match_phrase_prefix: { city } }] : []),
-            //   ...(country ? [{ match_phrase_prefix: { country } }] : []),
-            //   ...(startDate || endDate
-            //     ? [
-            //         {
-            //           range: {
-            //             startDate: {
-            //               ...(startDate ? { gte: startDate } : {}),
-            //               ...(endDate ? { lte: endDate } : {}),
-            //             },
-            //           },
-            //         },
-            //       ]
-            //     : []),
-            //   ...(userId ? [{ term: { userId: userId } }] : []),
-            // ],
-          },
+        [
+          fn(
+            "COALESCE",
+            fn("ROUND", fn("AVG", col("attendances.attendance_type")), 2),
+            0
+          ),
+          "avg_attendance",
+        ],
+      ],
+      where: whereClause,
+      include: [
+        {
+          model: db.attendance as ModelStatic<Model>,
+          attributes: [],
         },
-        sort: [{ startDate: { order: "asc" } }],
-      },
-    };
-
-    const { hits } = await client.search(elasticQuery);
-
-    const events = hits.hits.map((hit) => {
-      const { userId, ...eventData } = hit._source as EventForES;
-      return {
-        ...eventData,
-        userId,
-        id: parseInt(hit._id!),
-      };
+      ],
+      group: ["event.id"],
+      order: [["startDate", "ASC"]],
+      limit,
+      subQuery: false,
+      offset,
     });
+
+    // const elasticQuery: any = {
+    //   index: "events",
+    //   from: offset,
+    //   size: limit,
+    //   body: {
+    //     query: {
+    //       bool: {
+    //         must: [
+    //           { match_all: {} },
+    //           ...(search ? [{ match_phrase_prefix: { title: search } }] : []),
+    //           ...(venue ? [{ match_phrase_prefix: { venue } }] : []),
+    //           ...(city ? [{ match_phrase_prefix: { city } }] : []),
+    //           ...(country ? [{ match_phrase_prefix: { country } }] : []),
+    //           ...(startDate ? [{ match: { startDate: startDate } }] : []),
+    //           ...(endDate ? [{ match: { endDate: endDate } }] : []),
+    //         ],
+    //         filter: [...(userId ? [{ term: { userId: userId } }] : [])],
+    //         // must: [
+    //         //   { match_all: {} },
+    //         //   ...(search ? [{ match_phrase_prefix: { title: search } }] : []),
+    //         //   ...(venue ? [{ match_phrase_prefix: { venue } }] : []),
+    //         //   ...(city ? [{ match_phrase_prefix: { city } }] : []),
+    //         //   ...(country ? [{ match_phrase_prefix: { country } }] : []),
+    //         //   ...(startDate || endDate
+    //         //     ? [
+    //         //         {
+    //         //           range: {
+    //         //             startDate: {
+    //         //               ...(startDate ? { gte: startDate } : {}),
+    //         //               ...(endDate ? { lte: endDate } : {}),
+    //         //             },
+    //         //           },
+    //         //         },
+    //         //       ]
+    //         //     : []),
+    //         //   ...(userId ? [{ term: { userId: userId } }] : []),
+    //         // ],
+    //       },
+    //     },
+    //     sort: [{ startDate: { order: "asc" } }],
+    //   },
+    // };
+
+    // const { hits } = await client.search(elasticQuery);
+
+    // const events = hits.hits.map((hit) => {
+    //   const { userId, ...eventData } = hit._source as EventForES;
+    //   return {
+    //     ...eventData,
+    //     userId,
+    //     id: parseInt(hit._id!),
+    //   };
+    // });
 
     res.status(200).json(events);
   } catch (error) {
@@ -383,10 +383,10 @@ export const deleteEvent = async (req: Request, res: Response) => {
         .send("Event not found or user not authorized to delete this event!");
     }
 
-    await client.delete({
-      index: "events",
-      id: eventId,
-    });
+    // await client.delete({
+    //   index: "events",
+    //   id: eventId,
+    // });
 
     res.status(200).send("Deleted!");
   } catch (error) {
@@ -455,21 +455,21 @@ export const updateEvent = async (req: Request, res: Response) => {
     });
 
     // Update Elasticsearch index (for syncing with search results)
-    await client.update({
-      index: "events",
-      id: eventId,
-      doc: {
-        title: req.body.title || event.title,
-        description: req.body.description || event.description,
-        startDate: formattedStartDate,
-        endDate: formattedEndDate,
-        mode: req.body.mode || event.mode,
-        venue: req.body.venue || event.venue,
-        city: req.body.city || event.city,
-        country: req.body.country || event.country,
-        thumbnail: req.body.thumbnail || event.thumbnail,
-      },
-    });
+    // await client.update({
+    //   index: "events",
+    //   id: eventId,
+    //   doc: {
+    //     title: req.body.title || event.title,
+    //     description: req.body.description || event.description,
+    //     startDate: formattedStartDate,
+    //     endDate: formattedEndDate,
+    //     mode: req.body.mode || event.mode,
+    //     venue: req.body.venue || event.venue,
+    //     city: req.body.city || event.city,
+    //     country: req.body.country || event.country,
+    //     thumbnail: req.body.thumbnail || event.thumbnail,
+    //   },
+    // });
 
     res.status(200).json({
       updatedEvent: updatedEvent.dataValues,

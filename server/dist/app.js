@@ -22,7 +22,6 @@ const userRoute_1 = __importDefault(require("./routes/userRoute"));
 const authRoute_1 = __importDefault(require("./routes/authRoute"));
 const eventRoute_1 = __importDefault(require("./routes/eventRoute"));
 const elasticView_1 = require("./controllers/elasticView");
-const elasticSearchSetup_1 = __importDefault(require("./elasticSearchSetup"));
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
@@ -34,12 +33,11 @@ app.use("/api/elasticSearch", elasticView_1.getAllEventsFromElastic);
 (function bootstrap() {
     return __awaiter(this, void 0, void 0, function* () {
         yield index_1.default.sequelize.sync();
-        try {
-            yield (0, elasticSearchSetup_1.default)();
-        }
-        catch (err) {
-            console.log(err);
-        } //sync() establishes connection to the datatbase and creates the tables if they don't exist
+        // try {
+        //   await createEventIndex();
+        // } catch (err) {
+        //   console.log(err);
+        // } //sync() establishes connection to the datatbase and creates the tables if they don't exist
         app.listen(port, hostname, () => {
             console.log(`Server running at http://${hostname}:${port}/`);
         });
