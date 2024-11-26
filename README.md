@@ -1,3 +1,7 @@
+# Tech Stack 
+
+React, Chakra UI, Express.js, PostgreSQL, Elasticsearch, Sequelize, Faker.js
+
 # EventSeeker: The Ultimate Event Management Platform
 
 EventSeeker allows users to create, manage, and explore a wide array of events with robust search and rating capabilities.
@@ -9,7 +13,7 @@ EventSeeker allows users to create, manage, and explore a wide array of events w
 
   - Users can perform full CRUD operations on events they’ve created.
   - Users can see who is attending these events.
-  - Events include scoring details with a breakdown into categories: **Interested**, **Going**, and **Not Going**.
+  - Events include scoring details with a breakdown into categories: Interested, Going, and Not Going.
 
 - **Optimized Search and Infinite Scroll**
 
@@ -20,7 +24,7 @@ EventSeeker allows users to create, manage, and explore a wide array of events w
 - **Scalable Database and Indexing**
 
   - PostgreSQL generates unique IDs for events, which are then indexed in Elasticsearch for rapid search and retrieval.
-  - **Data-Intensive Setup**: A preloaded dataset of <span style="color: green;">**1 million**</span> events, generated with Faker.js, demonstrates the system's capability to handle extensive data loads.
+  - **Data-Intensive Setup**: A preloaded dataset of <span style="color: green;">**1 million**</span> events, generated with **Faker.js**, demonstrates the system's capability to handle extensive data loads.
 
 - **Comprehensive Search and Filter**
 
